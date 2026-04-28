@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiom Active Base — April 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f1f5f9; color:#1e293b; }
+
+.topbar { background:#0f172a; padding:14px 40px; display:flex; justify-content:space-between; align-items:center; }
+.topbar-title { color:#f8fafc; font-weight:700; font-size:17px; }
+.topbar-meta  { color:#64748b; font-size:13px; }
+
+.page { max-width:1080px; margin:0 auto; padding:0 32px 60px; }
+
+/* Section headers */
+.sec-head { padding:36px 0 20px; }
+.sec-num  { font-size:11px; font-weight:700; letter-spacing:2px; color:#7c3aed; text-transform:uppercase; margin-bottom:4px; }
+.sec-title{ font-size:22px; font-weight:800; color:#1e293b; }
+.sec-sub  { font-size:14px; color:#64748b; margin-top:6px; max-width:680px; line-height:1.6; }
+
+/* Cards */
+.card { background:#fff; border-radius:12px; padding:28px; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+.card + .card { margin-top:16px; }
+.card-label { font-size:11px; font-weight:700; letter-spacing:1.5px; color:#94a3b8; text-transform:uppercase; margin-bottom:6px; }
+.card-title { font-size:15px; font-weight:700; color:#1e293b; margin-bottom:18px; }
+
+/* Stat row */
+.stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:28px 0; }
+.stat { background:#fff; border-radius:10px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,0.08); border-top:3px solid; }
+.stat.red   { border-top-color:#dc2626; }
+.stat.amber { border-top-color:#d97706; }
+.stat.blue  { border-top-color:#2563eb; }
+.stat.green { border-top-color:#16a34a; }
+.stat-val { font-size:30px; font-weight:800; line-height:1; margin-bottom:5px; }
+.stat.red   .stat-val { color:#dc2626; }
+.stat.amber .stat-val { color:#d97706; }
+.stat.blue  .stat-val { color:#2563eb; }
+.stat.green .stat-val { color:#16a34a; }
+.stat-lbl { font-size:12px; color:#64748b; font-weight:600; }
+.stat-sub { font-size:11px; color:#94a3b8; margin-top:3px; }
+
+/* Chart wrappers */
+.ch { position:relative; }
+.ch-md  { height:300px; }
+.ch-sm  { height:240px; }
+
+/* Grid */
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+
+/* Callout */
+.callout { border-radius:8px; padding:14px 16px; margin-top:14px; font-size:13px; line-height:1.6; color:#374151; }
+.callout.red    { background:#fef2f2; border-left:3px solid #dc2626; }
+.callout.blue   { background:#eff6ff; border-left:3px solid #2563eb; }
+.callout.purple { background:#faf5ff; border-left:3px solid #7c3aed; }
+.callout.green  { background:#f0fdf4; border-left:3px solid #16a34a; }
+.callout.amber  { background:#fffbeb; border-left:3px solid #d97706; }
+
+/* Frequency comparison box */
+.freq-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:10px; overflow:hidden; border:1px solid #e2e8f0; }
+.freq-col  { padding:22px; }
+.freq-col.left  { background:#f0f9ff; border-right:1px solid #e2e8f0; }
+.freq-col.right { background:#faf5ff; }
+.freq-tag  { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px; }
+.freq-tag.blue   { color:#0891b2; }
+.freq-tag.purple { color:#7c3aed; }
+.freq-line { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px solid rgba(0,0,0,0.05); font-size:13px; }
+.freq-line:last-child { border:none; }
+.freq-line strong { font-size:15px; }
+.freq-verdict { display:grid; grid-template-columns:1fr 1fr; gap:0; border-top:2px solid #e2e8f0; }
+.freq-verdict-item { padding:16px; text-align:center; }
+.freq-verdict-item:first-child { border-right:1px solid #e2e8f0; }
+.freq-verdict-val { font-size:26px; font-weight:800; }
+.freq-verdict-lbl { font-size:11px; color:#64748b; margin-top:3px; }
+
+/* Real data mini table inside why section */
+.mini-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:16px; }
+.mini-table th { background:#f8fafc; padding:8px 12px; text-align:right; font-weight:600; font-size:11px; color:#64748b; border-bottom:2px solid #e2e8f0; }
+.mini-table th:first-child { text-align:left; }
+.mini-table td { padding:8px 12px; text-align:right; border-bottom:1px solid #f1f5f9; }
+.mini-table td:first-child { text-align:left; font-weight:600; }
+.mini-table tr:last-child td { font-weight:700; background:#fff8f8; color:#dc2626; }
+.mini-table .payg-val { color:#7c3aed; font-weight:700; }
+.mini-table .d28-val  { color:#0891b2; }
+
+/* Data table */
+.data-table-wrap { overflow-x:auto; border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+table.dt { width:100%; border-collapse:collapse; font-size:12.5px; background:#fff; border-radius:12px; overflow:hidden; }
+table.dt th { background:#1e293b; color:#f8fafc; padding:10px 12px; text-align:right; font-weight:600; font-size:11px; white-space:nowrap; }
+table.dt th:first-child { text-align:left; }
+table.dt td { padding:9px 12px; text-align:right; border-bottom:1px solid #f1f5f9; }
+table.dt td:first-child { text-align:left; font-weight:600; }
+table.dt tr:hover td { background:#f8fafc; }
+table.dt tr.spike td { background:#fff1f2; }
+table.dt tr.good  td { background:#f0fdf4; }
+table.dt .red    { color:#dc2626; font-weight:700; }
+table.dt .green  { color:#16a34a; font-weight:700; }
+table.dt .purple { color:#7c3aed; font-weight:700; }
+table.dt .cyan   { color:#0891b2; }
+table.dt .muted  { color:#94a3b8; font-size:11px; }
+.badge { display:inline-block; padding:1px 7px; border-radius:20px; font-size:10px; font-weight:700; margin-left:4px; }
+.badge-red    { background:#fef2f2; color:#dc2626; }
+.badge-green  { background:#f0fdf4; color:#16a34a; }
+.badge-amber  { background:#fffbeb; color:#d97706; }
+
+/* Recovery delta boxes */
+.delta-row { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin-top:16px; }
+.delta-box { background:#f8fafc; border-radius:8px; padding:12px; text-align:center; border:1px solid #e2e8f0; }
+.delta-box .wk  { font-size:10px; color:#94a3b8; margin-bottom:4px; }
+.delta-box .val { font-size:18px; font-weight:800; }
+.delta-box .sub { font-size:10px; color:#94a3b8; margin-top:2px; }
+.delta-box.good { border-color:#bbf7d0; background:#f0fdf4; }
+.delta-box.good .val { color:#16a34a; }
+.delta-box.bad  { border-color:#fecaca; background:#fef2f2; }
+.delta-box.bad  .val { color:#dc2626; }
+
+/* Divider */
+.divider { height:1px; background:#e2e8f0; margin:8px 0; }
+
+/* Footer */
+.footer { background:#0f172a; color:#475569; text-align:center; padding:18px; font-size:12px; margin-top:40px; }
+
+/* Sliders */
+.slider-row { margin-bottom:16px; }
+.slider-label { font-size:13px; font-weight:600; color:#374151; margin-bottom:5px; display:flex; justify-content:space-between; }
+.slider-val { font-weight:800; color:#2563eb; }
+input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer; }
+.slider-hints { display:flex; justify-content:space-between; font-size:10px; color:#94a3b8; margin-top:3px; }
+
+/* Projection KPIs */
+.proj-kpi { background:#f8fafc; border-radius:10px; padding:14px 16px; border:1px solid #e2e8f0; }
+.proj-kpi-lbl { font-size:11px; font-weight:600; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:5px; }
+.proj-kpi-val { font-size:24px; font-weight:800; color:#1e293b; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">Wiom — Active Base Analysis</div>
+  <div class="topbar-meta">28 April 2026 &nbsp;·&nbsp; Data: Snowflake PROD_DB</div>
+</div>
+
+<div class="page">
+
+<!-- ═══════════════════════════════════════════
+     SECTION 1 — WHAT'S HAPPENING
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">01 — What's Happening</div>
+  <div class="sec-title">Active base has declined 29% since January and just re-accelerated</div>
+  <div class="sec-sub">The rate of weekly decline was improving — it reached 1.7% in early April. In the last two weeks it has jumped back to 2.8% and 2.6%. The R15 renewal rate has not deteriorated; it has been stable at 85–87% throughout.</div>
+</div>
+
+<div class="stat-row">
+  <div class="stat red"><div class="stat-val">118K</div><div class="stat-lbl">Active base today</div><div class="stat-sub">Was 166K on Jan 5</div></div>
+  <div class="stat amber"><div class="stat-val">−29%</div><div class="stat-lbl">16-week decline</div><div class="stat-sub">Jan 5 → Apr 26</div></div>
+  <div class="stat red"><div class="stat-val">2.8%</div><div class="stat-lbl">WoW loss — Apr 13</div><div class="stat-sub">Was 1.7% on Apr 6</div></div>
+  <div class="stat green"><div class="stat-val">85–87%</div><div class="stat-lbl">R15 renewal rate</div><div class="stat-sub">Stable — not the problem</div></div>
+</div>
+
+<div class="card">
+  <div class="card-label">Active Base &amp; Week-on-Week % Change</div>
+  <div class="card-title">Jan 2026 → Apr 2026 — end-of-week snapshot</div>
+  <div class="ch ch-md"><canvas id="c-main"></canvas></div>
+  <div class="callout amber" style="margin-top:16px;">
+    <strong>Read this chart:</strong> Blue line = active base (left axis). Bars = WoW % change (right axis). <span style="color:#16a34a; font-weight:700;">Green bars</span> mark the improving period (Mar 23–Apr 12, 1.7–1.9% loss). <span style="color:#dc2626; font-weight:700;">Red bars</span> mark the re-acceleration. The renewal rate has not moved — something else explains the shift.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 2 — WHY: PAYG FREQUENCY EFFECT
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">02 — Why It's Happening: Reason 1</div>
+  <div class="sec-title">Short-plan customers renew better per event — but hit renewal far more often</div>
+  <div class="sec-sub">All new installs are PayG. Customers choose their plan duration — 28 days or shorter (7-day, 14-day). 28-day customers renew at 85%; short-plan customers renew at 90%. But a 7-day customer hits their renewal window 4× more often per month. More renewal events at the same rate means more absolute losses per week.</div>
+</div>
+
+<div class="g2">
+  <div class="card">
+    <div class="card-label">The Frequency Math</div>
+    <div class="card-title">100 customers — same active base, different plan mix</div>
+    <div class="freq-grid" style="margin-top:4px;">
+      <div class="freq-col left">
+        <div class="freq-tag blue">28-Day Plan</div>
+        <div class="freq-line"><span>Plan cycle</span><strong style="color:#0891b2;">28 days</strong></div>
+        <div class="freq-line"><span>Renewal events / month</span><strong style="color:#0891b2;">~1×</strong></div>
+        <div class="freq-line"><span>Renewal rate per event</span><strong>85%</strong></div>
+        <div class="freq-line"><span>Churn rate per event</span><strong>15%</strong></div>
+        <div class="freq-line"><span>R15 events/week (100 cust.)</span><strong style="color:#0891b2;">~25</strong></div>
+      </div>
+      <div class="freq-col right">
+        <div class="freq-tag purple">7-Day Plan</div>
+        <div class="freq-line"><span>Plan cycle</span><strong style="color:#7c3aed;">7 days</strong></div>
+        <div class="freq-line"><span>Renewal events / month</span><strong style="color:#7c3aed;">~4×</strong></div>
+        <div class="freq-line"><span>Renewal rate per event</span><strong>90%</strong></div>
+        <div class="freq-line"><span>Churn rate per event</span><strong>10%</strong></div>
+        <div class="freq-line"><span>R15 events/week (100 cust.)</span><strong style="color:#7c3aed;">~100</strong></div>
+      </div>
+    </div>
+    <div class="freq-verdict">
+      <div class="freq-verdict-item">
+        <div class="freq-verdict-val" style="color:#0891b2;">3.75</div>
+        <div class="freq-verdict-lbl">lost per week<br>(100 × 28D customers)</div>
+      </div>
+      <div class="freq-verdict-item">
+        <div class="freq-verdict-val" style="color:#dc2626;">10</div>
+        <div class="freq-verdict-lbl">lost per week<br>(100 × 7D customers)</div>
+      </div>
+    </div>
+    <div class="callout purple" style="margin-top:12px;">
+      Same 100 customers. Better per-event renewal. <strong>2.7× more absolute weekly losses</strong> — purely because of renewal frequency.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">In the Actual Data</div>
+    <div class="card-title">PayG absolute losses have grown 10× in 6 weeks</div>
+    <table class="mini-table">
+      <thead>
+        <tr>
+          <th>Week</th>
+          <th>28D Pool</th>
+          <th>28D Lost</th>
+          <th>PayG Pool</th>
+          <th class="payg-val">PayG Lost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mar 9–15</td>
+          <td class="d28-val">33,516</td><td class="d28-val">4,789</td>
+          <td>703</td><td class="payg-val">27</td>
+        </tr>
+        <tr>
+          <td>Mar 23–29</td>
+          <td class="d28-val">31,716</td><td class="d28-val">4,597</td>
+          <td>905</td><td class="payg-val">49</td>
+        </tr>
+        <tr>
+          <td>Mar 30–Apr 5</td>
+          <td class="d28-val">29,071</td><td class="d28-val">4,007</td>
+          <td>1,540</td><td class="payg-val">127</td>
+        </tr>
+        <tr>
+          <td>Apr 6–12</td>
+          <td class="d28-val">29,665</td><td class="d28-val">4,026</td>
+          <td>3,237</td><td class="payg-val">345</td>
+        </tr>
+        <tr>
+          <td>Apr 13–19</td>
+          <td class="d28-val">31,033</td><td class="d28-val">4,618</td>
+          <td>5,248</td><td class="payg-val">476</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout red" style="margin-top:12px;">
+      28D losses are <strong>stable at ~4,000–4,800</strong> throughout. PayG losses went from <strong>27 → 476</strong> in 5 weeks. The PayG pool itself grew from 703 → 5,248 — not because of new installs (~235/week), but because existing customers are switching to shorter plans when they renew.
+    </div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px;">
+  <div class="card-label">R15 Expiry Pool — 28D vs PayG Plans</div>
+  <div class="card-title">Weekly count of customers hitting their renewal window (split by plan type)</div>
+  <div class="ch ch-md"><canvas id="c-pool"></canvas></div>
+  <div class="callout purple" style="margin-top:14px;">
+    <strong>Mar 30 EXPIRY_WEEK</strong> had 36,281 total expiries — about 3,400 more than the preceding weeks. Of that spike, 2,011 came from the PayG pool growing (3,237 → 5,248). At 9–15% churn, this generated ~730 extra losses in the Apr 13–19 week.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 3 — WHY: RECOVERIES DROPPED
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">03 — Why It's Happening: Reason 2</div>
+  <div class="sec-title">Recoveries — customers who come back after churning — dropped sharply in April</div>
+  <div class="sec-sub">Net drain = Gross Churn − Installs − Recoveries. Recoveries are customers who missed the 15-day R15 window but recharged later. They had been improving through March (1,400–1,500/week) and were a meaningful buffer. In April they dropped back to ~1,050/week — adding ~400 extra net drain per week on top of the pool effect.</div>
+</div>
+
+<div class="g2">
+  <div class="card">
+    <div class="card-label">Weekly Recoveries</div>
+    <div class="card-title">Customers returning to active base after R15 window closed</div>
+    <div class="ch ch-sm"><canvas id="c-recovery"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-label">Recovery Contribution to the April Spike</div>
+    <div class="card-title">From the best recovery weeks (Mar) to now</div>
+    <div class="delta-row">
+      <div class="delta-box good"><div class="wk">Mar 16</div><div class="val">1,511</div><div class="sub">recoveries</div></div>
+      <div class="delta-box good"><div class="wk">Mar 23</div><div class="val">1,484</div><div class="sub">recoveries</div></div>
+      <div class="delta-box good"><div class="wk">Mar 30</div><div class="val">1,425</div><div class="sub">recoveries</div></div>
+      <div class="delta-box"><div class="wk">Apr 6</div><div class="val" style="color:#d97706;">1,274</div><div class="sub">recoveries</div></div>
+      <div class="delta-box bad"><div class="wk">Apr 13</div><div class="val">1,071</div><div class="sub">recoveries</div></div>
+      <div class="delta-box bad"><div class="wk">Apr 20</div><div class="val">1,045</div><div class="sub">recoveries</div></div>
+    </div>
+    <div class="callout red" style="margin-top:14px;">
+      Recoveries fell by ~450/week from the March peak. Combined with the pool size effect, the Apr 13–19 net drain jumped from 2,667 → 3,647 — a difference of <strong>+980</strong>: pool (+729) + fewer recoveries (−203) + fewer installs (−48) = 980.
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     SECTION 4 — FULL WEEKLY DATA
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">04 — Full Weekly Breakdown</div>
+  <div class="sec-title">Jan 26 → Apr 26, 2026</div>
+  <div class="sec-sub">Primary figures (Lost, Retention, Recoveries, Net Drain, Installs) from the data team's report. 28D Lost and PayG Lost from Snowflake CHURN_FACT_TABLE — may not sum to Total Lost exactly due to different dedup logic.</div>
+</div>
+
+<div class="data-table-wrap">
+  <table class="dt">
+    <thead>
+      <tr>
+        <th>Week</th>
+        <th>Active Base</th>
+        <th>WoW Δ</th>
+        <th>WoW %</th>
+        <th>R15 Pool</th>
+        <th style="color:#93c5fd;">28D Pool†</th>
+        <th style="color:#c4b5fd;">PayG Pool†</th>
+        <th>Total Lost</th>
+        <th>Retention</th>
+        <th style="color:#93c5fd;">28D Lost†</th>
+        <th style="color:#c4b5fd;">PayG Lost†</th>
+        <th style="color:#86efac;">Recoveries</th>
+        <th>Net Drain</th>
+        <th>Installs</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Jan 26–Feb 1</td>
+        <td>155,389</td><td class="red">−3,158</td><td class="red">−2.0%</td>
+        <td>36,583</td><td class="cyan">36,342</td><td class="purple">863</td><td>4,819</td><td>86.8%</td>
+        <td class="cyan">4,893</td><td class="purple">127</td><td class="green">1,112</td><td>3,450</td><td>257</td>
+      </tr>
+      <tr>
+        <td>Feb 2–8</td>
+        <td>152,556</td><td class="red">−2,833</td><td class="red">−1.8%</td>
+        <td>35,093</td><td class="cyan">36,267</td><td class="purple">53</td><td>4,553</td><td>87.0%</td>
+        <td class="cyan">4,681</td><td class="purple">12</td><td class="green">1,121</td><td>3,104</td><td>328</td>
+      </tr>
+      <tr>
+        <td>Feb 9–15</td>
+        <td>149,518</td><td class="red">−3,038</td><td class="red">−2.0%</td>
+        <td>37,795</td><td class="cyan">38,962</td><td class="purple">179</td><td>4,872</td><td>87.1%</td>
+        <td class="cyan">5,213</td><td class="purple">11</td><td class="green">1,099</td><td>3,479</td><td>294</td>
+      </tr>
+      <tr>
+        <td>Feb 16–22</td>
+        <td>145,665</td><td class="red">−3,853</td><td class="red">−2.6%</td>
+        <td>38,422</td><td class="cyan">38,401</td><td class="purple">446</td><td>5,498</td><td>85.7%</td>
+        <td class="cyan">5,757</td><td class="purple">26</td><td class="green">988</td><td>4,240</td><td>270</td>
+      </tr>
+      <tr>
+        <td>Feb 23–Mar 1</td>
+        <td>141,929</td><td class="red">−3,736</td><td class="red">−2.6%</td>
+        <td>34,807</td><td class="cyan">34,429</td><td class="purple">580</td><td>5,224</td><td>85.0%</td>
+        <td class="cyan">5,491</td><td class="purple">15</td><td class="green">1,009</td><td>3,982</td><td>233</td>
+      </tr>
+      <tr>
+        <td>Mar 2–8</td>
+        <td>138,310</td><td class="red">−3,619</td><td class="red">−2.6%</td>
+        <td>32,716</td><td class="cyan">33,256</td><td class="purple">663</td><td>5,123</td><td>84.3%</td>
+        <td class="cyan">5,356</td><td class="purple">26</td><td class="green">1,069</td><td>3,866</td><td>188</td>
+      </tr>
+      <tr>
+        <td>Mar 9–15</td>
+        <td>134,921</td><td class="red">−3,389</td><td class="red">−2.5%</td>
+        <td>33,840</td><td class="cyan">33,516</td><td class="purple">703</td><td>5,108</td><td>84.9%</td>
+        <td class="cyan">4,789</td><td class="purple">27</td><td class="green">1,128</td><td>3,736</td><td>244</td>
+      </tr>
+      <tr>
+        <td>Mar 16–22</td>
+        <td>132,013</td><td class="red">−2,908</td><td class="red">−2.2%</td>
+        <td>34,834</td><td class="cyan">34,007</td><td class="purple">768</td><td>4,883</td><td>86.0%</td>
+        <td class="cyan">4,694</td><td class="purple">25</td><td class="green">1,511</td><td>3,085</td><td>287</td>
+      </tr>
+      <tr class="good">
+        <td>Mar 23–29 <span class="badge badge-green">improving</span></td>
+        <td>129,485</td><td class="red">−2,528</td><td class="green">−1.9%</td>
+        <td>32,712</td><td class="cyan">31,716</td><td class="purple">905</td><td>4,750</td><td>85.5%</td>
+        <td class="cyan">4,597</td><td class="purple">49</td><td class="green">1,484</td><td>3,031</td><td>235</td>
+      </tr>
+      <tr class="good">
+        <td>Mar 30–Apr 5 <span class="badge badge-green">improving</span></td>
+        <td>127,003</td><td class="red">−2,482</td><td class="green">−1.9%</td>
+        <td>29,658</td><td class="cyan">29,071</td><td class="purple">1,540</td><td>4,056</td><td>86.3%</td>
+        <td class="cyan">4,007</td><td class="purple">127</td><td class="green">1,425</td><td>2,364</td><td>267</td>
+      </tr>
+      <tr class="good">
+        <td>Apr 6–12 <span class="badge badge-green">improving</span></td>
+        <td>124,909</td><td class="red">−2,094</td><td class="green">−1.7%</td>
+        <td>30,566</td><td class="cyan">29,665</td><td class="purple">3,237</td><td>4,221</td><td>86.2%</td>
+        <td class="cyan">4,026</td><td class="purple">345</td><td class="green">1,274</td><td>2,667</td><td>280</td>
+      </tr>
+      <tr class="spike">
+        <td>Apr 13–19 <span class="badge badge-red">spike</span></td>
+        <td>121,444</td><td class="red">−3,465</td><td class="red">−2.8%</td>
+        <td><strong>33,591</strong></td><td class="cyan">31,033</td><td class="purple" style="font-weight:800;">5,248</td><td class="red">4,950</td><td>85.3%</td>
+        <td class="cyan">4,618</td><td class="purple" style="font-weight:800;">476</td><td style="color:#dc2626;">1,071</td><td class="red">3,647</td><td>232</td>
+      </tr>
+      <tr class="spike">
+        <td>Apr 20–26 <span class="badge badge-red">spike</span></td>
+        <td>118,245</td><td class="red">−3,199</td><td class="red">−2.6%</td>
+        <td><strong>32,848</strong></td><td class="cyan muted">28,693†</td><td class="purple muted">6,593†</td><td class="red">4,585</td><td>86.0%</td>
+        <td class="cyan muted">2,919†</td><td class="purple muted">327†</td><td style="color:#dc2626;">1,045</td><td class="red">3,341</td><td>199</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div style="font-size:11px; color:#94a3b8; margin-top:8px; padding:0 4px;">
+  <span class="badge badge-green">improving</span> = consecutive weeks where WoW was trending better &nbsp;|&nbsp;
+  <span class="badge badge-red">spike</span> = re-acceleration &nbsp;|&nbsp;
+  † Columns marked † are from Snowflake CHURN_FACT_TABLE (needs data team cross-check) — 28D Pool + PayG Pool may not sum to R15 Pool, and 28D Lost + PayG Lost may not sum to Total Lost, due to different dedup logic &nbsp;|&nbsp;
+  Apr 20–26 †-columns incomplete: R15 window only closed Apr 21
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SECTION 5 — SO WHAT
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">05 — So What</div>
+  <div class="sec-title">What this means — and where it goes from here</div>
+</div>
+
+<!-- 5a: Recovery callout -->
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-label">Open Question — Why Are Recoveries Dropping?</div>
+  <div class="card-title">Recoveries fell from ~1,500/week in March to ~1,050/week in April — contributing ~400 extra net drain/week</div>
+  <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:4px;">
+    <div class="callout amber" style="flex:1; min-width:220px; margin-top:0;">
+      <div style="font-size:13px; line-height:1.7; color:#374151;">
+        <strong>Hypothesis:</strong> As the mix of churned customers shifts toward PayG, recoveries may naturally be lower. A 28D customer who churns paid ₹565 — they're more likely to return. A 1-day customer who churns paid ₹23. Lower commitment may mean lower win-back rate. <em>This needs verification — compare recovery rate for PayG churners vs 28D churners separately.</em>
+      </div>
+    </div>
+    <div class="callout blue" style="flex:1; min-width:220px; margin-top:0;">
+      <div style="font-size:13px; line-height:1.7; color:#374151;">
+        <strong>Why it matters:</strong> If the recovery drop is structural (PayG customers just don't return), it will continue declining as PayG mix grows. If it's a campaign/effort issue, it's recoverable. The answer changes the forward projection materially — as you can see in the model below.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5b: Break-even chart -->
+<div class="card" style="margin-bottom:16px;">
+  <div class="card-label">Required vs Current Renewal Rate — by PayG Plan Type</div>
+  <div class="card-title">What renewal rate does each plan type need to generate no more churn per customer than a 28-day plan?</div>
+  <div style="font-size:13px; color:#64748b; margin-bottom:16px; line-height:1.6;">
+    A 28D customer at 85% renewal contributes <strong>3.75 lost per 100 customers/week</strong> (they hit R15 once every 4 weeks). For a 7-day customer hitting R15 every week, matching that requires 96.25% renewal. For a 1-day customer hitting R15 daily — 99.5%. <em>No PayG plan currently meets its break-even threshold.</em>
+  </div>
+  <div class="g2" style="align-items:start; gap:20px;">
+    <div class="ch" style="height:260px;"><canvas id="c-breakeven"></canvas></div>
+    <div>
+      <table class="mini-table" style="font-size:12.5px;">
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>Events/wk<br>per customer</th>
+            <th>Break-even<br>renewal needed</th>
+            <th>Current<br>renewal</th>
+            <th>Gap</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:#16a34a; font-weight:700;">28D (baseline)</td>
+            <td>0.25×</td><td>85.0%</td><td>85.0%</td>
+            <td style="color:#16a34a; font-weight:700;">—</td>
+          </tr>
+          <tr>
+            <td>14D</td>
+            <td>0.5×</td><td>92.5%</td><td>85.7%</td>
+            <td style="color:#dc2626; font-weight:700;">−6.8pp</td>
+          </tr>
+          <tr>
+            <td>7D</td>
+            <td>1×</td><td>96.3%</td><td>92.2%</td>
+            <td style="color:#dc2626; font-weight:700;">−4.1pp</td>
+          </tr>
+          <tr>
+            <td>2D</td>
+            <td>3.5×</td><td>98.9%</td><td>95.7%</td>
+            <td style="color:#dc2626; font-weight:700;">−3.2pp</td>
+          </tr>
+          <tr style="background:#fff1f2;">
+            <td style="color:#dc2626; font-weight:700;">1D (43% of events)</td>
+            <td>7×</td><td>99.5%</td><td>91.0%</td>
+            <td style="color:#dc2626; font-weight:800;">−8.5pp</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout red" style="margin-top:12px;">
+        <strong>1D and 2D plans make up 81% of PayG renewal events.</strong> Both are far below break-even. This is the structural driver — not a temporary effect.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 5c: Interactive projection -->
+<div class="card">
+  <div class="card-label">Interactive Forward Projection — 6 Weeks</div>
+  <div class="card-title">Adjust the levers to see how active base evolves</div>
+  <div style="font-size:13px; color:#64748b; margin-bottom:20px;">Starting from Apr 26 actual (118,245). PayG pool starts at 6,593 events/week. 28D pool starts at 28,693 events/week.</div>
+
+  <!-- Sliders -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px;">
+
+    <div>
+      <div style="font-size:12px; font-weight:700; color:#64748b; letter-spacing:0.5px; margin-bottom:10px; text-transform:uppercase;">Growth Drivers</div>
+      <div class="slider-row" id="sr-installs">
+        <div class="slider-label">Weekly Installs <span class="slider-val" id="v-installs">220</span></div>
+        <input type="range" id="in-installs" min="0" max="2000" step="50" value="220">
+        <div class="slider-hints"><span>0</span><span>2,000</span></div>
+      </div>
+      <div class="slider-row" id="sr-recoveries">
+        <div class="slider-label">Weekly Recoveries <span class="slider-val" id="v-recoveries">1,050</span></div>
+        <input type="range" id="in-recoveries" min="400" max="2000" step="50" value="1050">
+        <div class="slider-hints"><span>400</span><span>2,000</span></div>
+      </div>
+      <div class="slider-row" id="sr-growth">
+        <div class="slider-label">PayG Pool Growth / week <span class="slider-val" id="v-growth">1,200</span></div>
+        <input type="range" id="in-growth" min="0" max="3000" step="100" value="1200">
+        <div class="slider-hints"><span>0 (migration stops)</span><span>3,000 (accelerates)</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:12px; font-weight:700; color:#64748b; letter-spacing:0.5px; margin-bottom:10px; text-transform:uppercase;">Churn Rates</div>
+      <div class="slider-row" id="sr-payg-churn">
+        <div class="slider-label">PayG Churn Rate / event <span class="slider-val" id="v-payg-churn">10.0%</span></div>
+        <input type="range" id="in-payg-churn" min="3" max="25" step="0.5" value="10">
+        <div class="slider-hints"><span>3% (break-even ~7D)</span><span>25%</span></div>
+      </div>
+      <div class="slider-row" id="sr-d28-churn">
+        <div class="slider-label">28D Churn Rate / event <span class="slider-val" id="v-d28-churn">14.0%</span></div>
+        <input type="range" id="in-d28-churn" min="8" max="22" step="0.5" value="14">
+        <div class="slider-hints"><span>8%</span><span>22%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI output row -->
+  <div id="proj-kpis" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px;">
+    <div class="proj-kpi">
+      <div class="proj-kpi-lbl">Active Base — May 24</div>
+      <div class="proj-kpi-val" id="kpi-ab6">—</div>
+    </div>
+    <div class="proj-kpi">
+      <div class="proj-kpi-lbl">Total Decline (6 wks)</div>
+      <div class="proj-kpi-val" id="kpi-decline">—</div>
+    </div>
+    <div class="proj-kpi">
+      <div class="proj-kpi-lbl">Avg Net Drain/week</div>
+      <div class="proj-kpi-val" id="kpi-drain">—</div>
+    </div>
+    <div class="proj-kpi">
+      <div class="proj-kpi-lbl">WoW % — Week 6</div>
+      <div class="proj-kpi-val" id="kpi-wow">—</div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="ch" style="height:320px;"><canvas id="c-proj"></canvas></div>
+  <div style="font-size:11px; color:#94a3b8; margin-top:8px;">
+    Solid line = historical actuals (data team figures). Dashed line = projection. Shaded area = projected range.
+    28D pool assumed to decline by 0.3× PayG growth rate per week as customers migrate.
+  </div>
+</div>
+
+</div><!-- end .page -->
+
+<div class="footer">
+  Wiom Analytics &nbsp;·&nbsp; Active Base Deep-Dive &nbsp;·&nbsp; 28 April 2026 &nbsp;·&nbsp; Data: Snowflake PROD_DB via Metabase &amp; Data Team Report
+</div>
+
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────
+const weekLabels = ['Jan 11','Jan 18','Jan 25','Feb 1','Feb 8','Feb 15','Feb 22','Mar 1','Mar 8','Mar 15','Mar 22','Mar 29','Apr 5','Apr 12','Apr 19','Apr 26'];
+const activeBase = [165160,162058,158547,155389,152556,149518,145665,141929,138310,134921,132013,129485,127003,124909,121444,118245];
+const wowPct    = [-0.5,-1.9,-2.2,-2.0,-1.8,-2.0,-2.6,-2.6,-2.6,-2.5,-2.2,-1.9,-1.9,-1.7,-2.8,-2.6];
+
+// Pool data: mapped to the week label (EXPIRY_WEEK + 14d offset)
+const poolLabels = ['Jan 26','Feb 2','Feb 9','Feb 16','Feb 23','Mar 2','Mar 9','Mar 16','Mar 23','Mar 30','Apr 6','Apr 13','Apr 20'];
+const pool28d    = [36342,36267,38962,38401,34429,33256,33516,34007,31716,29071,29665,31033,28693];
+const poolPayg   = [863,53,179,446,580,663,703,768,905,1540,3237,5248,6593];
+
+// Recoveries (from data team table, Jan 26 onwards)
+const recLabels = ['Jan 26','Feb 2','Feb 9','Feb 16','Feb 23','Mar 2','Mar 9','Mar 16','Mar 23','Mar 30','Apr 6','Apr 13','Apr 20'];
+const recoveries= [1112,1121,1099,988,1009,1069,1128,1511,1484,1425,1274,1071,1045];
+
+// ─── CHART 1: Active Base + WoW % ───────────────────────────────────────
+new Chart(document.getElementById('c-main'), {
+  data: {
+    labels: weekLabels,
+    datasets: [
+      {
+        type: 'line',
+        label: 'Active Base',
+        data: activeBase,
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37,99,235,0.07)',
+        fill: true,
+        borderWidth: 2.5,
+        pointRadius: 5,
+        pointBackgroundColor: wowPct.map((v,i) => {
+          if (i >= 14) return '#dc2626';
+          if (i >= 11 && i <= 13) return '#16a34a';
+          return '#2563eb';
+        }),
+        tension: 0.35,
+        yAxisID: 'y',
+        order: 1
+      },
+      {
+        type: 'bar',
+        label: 'WoW %',
+        data: wowPct,
+        backgroundColor: wowPct.map((v,i) => {
+          if (i >= 14) return 'rgba(220,38,38,0.75)';
+          if (i >= 11 && i <= 13) return 'rgba(22,163,74,0.75)';
+          return 'rgba(217,119,6,0.65)';
+        }),
+        borderRadius: 4,
+        yAxisID: 'y2',
+        order: 2
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode:'index', intersect:false },
+    plugins: {
+      legend: { position:'top' },
+      tooltip: {
+        callbacks: {
+          label: ctx => ctx.datasetIndex === 0
+            ? ` Active Base: ${ctx.parsed.y.toLocaleString()}`
+            : ` WoW: ${ctx.parsed.y.toFixed(1)}%`
+        }
+      }
+    },
+    scales: {
+      y:  { position:'left',  title:{display:true,text:'Active Base',color:'#2563eb'}, ticks:{callback:v=>(v/1000).toFixed(0)+'K'}, min:105000, grid:{color:'rgba(0,0,0,0.04)'} },
+      y2: { position:'right', title:{display:true,text:'WoW %',color:'#dc2626'}, ticks:{callback:v=>v.toFixed(1)+'%'}, min:-4, max:1, grid:{display:false} },
+      x:  { grid:{display:false} }
+    }
+  }
+});
+
+// ─── CHART 2: Pool Stacked Bar ───────────────────────────────────────────
+new Chart(document.getElementById('c-pool'), {
+  type: 'bar',
+  data: {
+    labels: poolLabels,
+    datasets: [
+      {
+        label: '28-Day Plan Pool',
+        data: pool28d,
+        backgroundColor: 'rgba(8,145,178,0.7)',
+        borderRadius: { topLeft:0, topRight:0, bottomLeft:4, bottomRight:4 }
+      },
+      {
+        label: 'Short PayG Pool',
+        data: poolPayg,
+        backgroundColor: poolPayg.map((v,i) => i >= 10 ? 'rgba(124,58,237,0.9)' : 'rgba(124,58,237,0.55)'),
+        borderRadius: { topLeft:4, topRight:4, bottomLeft:0, bottomRight:0 }
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position:'top' },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`,
+          footer: items => ` Total pool: ${items.reduce((s,i)=>s+i.parsed.y,0).toLocaleString()}`
+        }
+      }
+    },
+    scales: {
+      y: { stacked:true, ticks:{callback:v=>(v/1000).toFixed(0)+'K'}, grid:{color:'rgba(0,0,0,0.04)'} },
+      x: { stacked:true, grid:{display:false} }
+    }
+  }
+});
+
+// ─── CHART 3: Recoveries ────────────────────────────────────────────────
+new Chart(document.getElementById('c-recovery'), {
+  type: 'line',
+  data: {
+    labels: recLabels,
+    datasets: [{
+      label: 'Weekly Recoveries',
+      data: recoveries,
+      borderColor: '#16a34a',
+      backgroundColor: 'rgba(22,163,74,0.1)',
+      fill: true,
+      borderWidth: 2.5,
+      pointRadius: 5,
+      pointBackgroundColor: recoveries.map((v,i) => {
+        if (i >= 11) return '#dc2626'; // April drop
+        if (i >= 7 && i <= 10) return '#16a34a'; // March peak
+        return '#16a34a';
+      }),
+      tension: 0.35
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display:false },
+      tooltip: { callbacks: { label: ctx => ` Recoveries: ${ctx.parsed.y.toLocaleString()}` } }
+    },
+    scales: {
+      y: {
+        min: 800, max: 1700,
+        ticks: { callback: v => v.toLocaleString() },
+        grid: { color:'rgba(0,0,0,0.04)' }
+      },
+      x: { grid:{display:false} }
+    }
+  }
+});
+
+// ─── CHART: BREAK-EVEN ──────────────────────────────────────────────────
+{
+  const plans    = ['1-Day Plan', '2-Day Plan', '7-Day Plan', '14-Day Plan', '28D (baseline)'];
+  const required = [99.5, 98.9, 96.25, 92.5, 85.0];
+  const current  = [91.0, 95.7, 92.2, 85.7, 85.0];
+
+  new Chart(document.getElementById('c-breakeven'), {
+    type: 'bar',
+    data: {
+      labels: plans,
+      datasets: [
+        {
+          label: 'Break-even renewal needed',
+          data: required,
+          backgroundColor: required.map((r, i) => current[i] >= r ? 'rgba(22,163,74,0.25)' : 'rgba(220,38,38,0.25)'),
+          borderColor:     required.map((r, i) => current[i] >= r ? '#16a34a' : '#dc2626'),
+          borderWidth: 1.5,
+          borderRadius: 4
+        },
+        {
+          label: 'Current renewal rate',
+          data: current,
+          backgroundColor: current.map((c, i) => c >= required[i] ? 'rgba(22,163,74,0.8)' : 'rgba(37,99,235,0.75)'),
+          borderRadius: 4
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.x.toFixed(1)}%` } }
+      },
+      scales: {
+        x: { min: 80, max: 101, ticks: { callback: v => v+'%' }, grid: { color: 'rgba(0,0,0,0.04)' } },
+        y: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ─── INTERACTIVE PROJECTION ──────────────────────────────────────────────
+const HIST_LABELS = ['Jan 26','Feb 2','Feb 9','Feb 16','Feb 23','Mar 2','Mar 9','Mar 16','Mar 23','Mar 30','Apr 6','Apr 13','Apr 20','Apr 26'];
+const HIST_AB     = [155389,152556,149518,145665,141929,138310,134921,132013,129485,127003,124909,121444,118245,118245];
+const PROJ_WEEKS  = ['May 3','May 10','May 17','May 24','May 31','Jun 7'];
+
+let projChart = null;
+
+function runProjection() {
+  const installs   = +document.getElementById('in-installs').value;
+  const paygChurn  = +document.getElementById('in-payg-churn').value / 100;
+  const d28Churn   = +document.getElementById('in-d28-churn').value / 100;
+  const paygGrowth = +document.getElementById('in-growth').value;
+  const recoveries = +document.getElementById('in-recoveries').value;
+
+  let ab        = 118245;
+  let paygPool  = 6593;
+  let d28Pool   = 28693;
+
+  const projAB    = [];
+  const projDrain = [];
+
+  for (let i = 0; i < 6; i++) {
+    paygPool += paygGrowth;
+    d28Pool   = Math.max(d28Pool - paygGrowth * 0.3, 15000);
+
+    const lost    = paygPool * paygChurn + d28Pool * d28Churn;
+    const drain   = lost - installs - recoveries;
+    ab            = Math.round(ab - drain);
+    projAB.push(ab);
+    projDrain.push(Math.round(drain));
+  }
+
+  // Update KPIs
+  const finalAB   = projAB[5];
+  const totalDrop = 118245 - finalAB;
+  const avgDrain  = Math.round(projDrain.reduce((a, b) => a + b, 0) / 6);
+  const wow6      = ((projAB[5] - projAB[4]) / projAB[4] * 100).toFixed(1);
+
+  document.getElementById('kpi-ab6').textContent    = finalAB.toLocaleString();
+  document.getElementById('kpi-ab6').style.color    = finalAB < 100000 ? '#dc2626' : finalAB < 110000 ? '#d97706' : '#16a34a';
+  document.getElementById('kpi-decline').textContent = '−' + totalDrop.toLocaleString();
+  document.getElementById('kpi-decline').style.color = '#dc2626';
+  document.getElementById('kpi-drain').textContent   = avgDrain.toLocaleString() + '/wk';
+  document.getElementById('kpi-wow').textContent     = wow6 + '%';
+  document.getElementById('kpi-wow').style.color     = Math.abs(+wow6) > 3 ? '#dc2626' : Math.abs(+wow6) > 2 ? '#d97706' : '#16a34a';
+
+  // Build chart data
+  // Historical: 13 points, then projection: 6 points
+  // Null-pad historical for projection dataset and vice versa
+  const histData = HIST_AB.slice(0, 13).concat([118245]); // up to Apr 26
+  const projData = new Array(14).fill(null).concat(projAB); // nulls for hist weeks, then projection
+  // Join point: Apr 26 is index 13 in both
+  projData[13] = 118245;
+
+  const allLabels = HIST_LABELS.concat(PROJ_WEEKS);
+
+  if (projChart) {
+    projChart.data.datasets[1].data = projData;
+    projChart.update('none');
+  } else {
+    projChart = new Chart(document.getElementById('c-proj'), {
+      type: 'line',
+      data: {
+        labels: allLabels,
+        datasets: [
+          {
+            label: 'Historical (actual)',
+            data: histData.concat(new Array(6).fill(null)),
+            borderColor: '#2563eb',
+            backgroundColor: 'rgba(37,99,235,0.07)',
+            fill: true,
+            borderWidth: 2.5,
+            pointRadius: 4,
+            tension: 0.3
+          },
+          {
+            label: 'Projected',
+            data: projData,
+            borderColor: '#dc2626',
+            backgroundColor: 'rgba(220,38,38,0.07)',
+            fill: true,
+            borderWidth: 2.5,
+            borderDash: [6, 4],
+            pointRadius: 4,
+            pointBackgroundColor: '#dc2626',
+            tension: 0.3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { position: 'top' },
+          tooltip: {
+            callbacks: {
+              label: ctx => ctx.parsed.y !== null
+                ? ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`
+                : null
+            }
+          }
+        },
+        scales: {
+          y: {
+            ticks: { callback: v => (v/1000).toFixed(0)+'K' },
+            grid: { color: 'rgba(0,0,0,0.04)' }
+          },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+}
+
+// Wire up sliders
+['in-installs','in-payg-churn','in-d28-churn','in-growth','in-recoveries'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    // Update displayed value
+    if (id === 'in-installs')    document.getElementById('v-installs').textContent   = (+el.value).toLocaleString();
+    if (id === 'in-payg-churn')  document.getElementById('v-payg-churn').textContent = (+el.value).toFixed(1) + '%';
+    if (id === 'in-d28-churn')   document.getElementById('v-d28-churn').textContent  = (+el.value).toFixed(1) + '%';
+    if (id === 'in-growth')      document.getElementById('v-growth').textContent     = (+el.value).toLocaleString();
+    if (id === 'in-recoveries')  document.getElementById('v-recoveries').textContent = (+el.value).toLocaleString();
+    runProjection();
+  });
+});
+
+// Initial render
+runProjection();
+
+</script>
+</body>
+</html>
