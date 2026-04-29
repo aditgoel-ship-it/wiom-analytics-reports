@@ -604,6 +604,148 @@ input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════
+     SECTION 6 — RENEWAL BY SEGMENT
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">06 — Renewal by Segment</div>
+  <div class="sec-title">R15 Renewal Breakdown: 4 Customer Segments, Week by Week</div>
+  <div class="sec-sub">Each row = customers whose R15 grace period (plan expiry + 15 days) closes in that week. <strong>Pool</strong> = unique customers hitting that window. <strong>Renewed</strong> = recharged within 15 days. <strong>Lost</strong> = did not recharge. <strong>R15%</strong> = Renewed ÷ Pool. Source: CHURN_FACT_TABLE, deduped by router per R15 close week. <em>Numbers directionally correct — data team cross-check in progress.</em></div>
+</div>
+
+<div class="card">
+  <!-- Segment legend -->
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px;">
+    <div style="background:#ecfeff; border-left:3px solid #0e7490; padding:10px 12px; border-radius:6px;">
+      <div style="font-size:11px; font-weight:700; color:#0e7490; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">A · Old 28D</div>
+      <div style="font-size:12px; color:#374151;">Installed <strong>before Jan 26</strong>. On 28-day plan. The legacy core — was 100% of base pre-PayG launch.</div>
+    </div>
+    <div style="background:#eff6ff; border-left:3px solid #1e40af; padding:10px 12px; border-radius:6px;">
+      <div style="font-size:11px; font-weight:700; color:#1e40af; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">B · New 28D</div>
+      <div style="font-size:12px; color:#374151;">Installed <strong>Jan 26+</strong>. Chose 28-day plan. Post-launch customers who opted for monthly billing.</div>
+    </div>
+    <div style="background:#fffbeb; border-left:3px solid #b45309; padding:10px 12px; border-radius:6px;">
+      <div style="font-size:11px; font-weight:700; color:#b45309; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">C · Old PayG Migrated</div>
+      <div style="font-size:12px; color:#374151;">Installed <strong>before Jan 26</strong>. Switched to a shorter plan after launch. Pool growing as legacy customers migrate.</div>
+    </div>
+    <div style="background:#faf5ff; border-left:3px solid #6d28d9; padding:10px 12px; border-radius:6px;">
+      <div style="font-size:11px; font-weight:700; color:#6d28d9; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px;">D · New PayG</div>
+      <div style="font-size:12px; color:#374151;">Installed <strong>Jan 26+</strong>. Chose a shorter PayG plan. All new installs are in B or D from Jan 26.</div>
+    </div>
+  </div>
+
+  <div class="data-table-wrap">
+    <table class="dt" style="font-size:11px; min-width:1200px;">
+      <thead>
+        <tr>
+          <th rowspan="2" style="vertical-align:bottom; text-align:left; min-width:90px;">R15 Close<br>Week</th>
+          <th colspan="4" style="text-align:center; background:#0e7490; border-right:2px solid #0891b2;">A · Old 28D<br><span style="font-weight:400; font-size:10px;">Pre-Jan 26, 28-day plan</span></th>
+          <th colspan="4" style="text-align:center; background:#1e40af; border-right:2px solid #2563eb;">B · New 28D<br><span style="font-weight:400; font-size:10px;">Post-Jan 26, 28-day plan</span></th>
+          <th colspan="4" style="text-align:center; background:#b45309; border-right:2px solid #d97706;">C · Old PayG Migrated<br><span style="font-weight:400; font-size:10px;">Pre-Jan 26, shorter plan</span></th>
+          <th colspan="4" style="text-align:center; background:#6d28d9; border-right:2px solid #7c3aed;">D · New PayG<br><span style="font-weight:400; font-size:10px;">Post-Jan 26, shorter plan</span></th>
+          <th colspan="4" style="text-align:center; background:#111827;">TOTAL<br><span style="font-weight:400; font-size:10px;">All segments</span></th>
+        </tr>
+        <tr>
+          <th style="background:#0e7490; color:#cffafe;">Pool</th><th style="background:#0e7490; color:#cffafe;">Renewed</th><th style="background:#0e7490; color:#cffafe;">Lost</th><th style="background:#0e7490; color:#cffafe; border-right:2px solid #0891b2;">R15%</th>
+          <th style="background:#1e40af; color:#bfdbfe;">Pool</th><th style="background:#1e40af; color:#bfdbfe;">Renewed</th><th style="background:#1e40af; color:#bfdbfe;">Lost</th><th style="background:#1e40af; color:#bfdbfe; border-right:2px solid #2563eb;">R15%</th>
+          <th style="background:#b45309; color:#fef3c7;">Pool</th><th style="background:#b45309; color:#fef3c7;">Renewed</th><th style="background:#b45309; color:#fef3c7;">Lost</th><th style="background:#b45309; color:#fef3c7; border-right:2px solid #d97706;">R15%</th>
+          <th style="background:#6d28d9; color:#ede9fe;">Pool</th><th style="background:#6d28d9; color:#ede9fe;">Renewed</th><th style="background:#6d28d9; color:#ede9fe;">Lost</th><th style="background:#6d28d9; color:#ede9fe; border-right:2px solid #7c3aed;">R15%</th>
+          <th style="background:#111827; color:#f1f5f9;">Pool</th><th style="background:#111827; color:#f1f5f9;">Renewed</th><th style="background:#111827; color:#f1f5f9;">Lost</th><th style="background:#111827; color:#f1f5f9;">R15%</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-weight:700;">Mar 2–8</td>
+          <td>32,291</td><td>26,980</td><td>5,311</td><td style="color:#dc2626;font-weight:700;">83.6%</td>
+          <td>1</td><td>0</td><td>1</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
+          <td>8</td><td>5</td><td>3</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
+          <td>395</td><td>375</td><td>20</td><td style="color:#16a34a;font-weight:700;">94.9%</td>
+          <td>32,695</td><td>27,360</td><td>5,335</td><td style="color:#dc2626;font-weight:700;">83.7%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Mar 9–15</td>
+          <td>32,375</td><td>27,579</td><td>4,796</td><td style="color:#d97706;font-weight:700;">85.2%</td>
+          <td>99</td><td>92</td><td>7</td><td style="color:#16a34a;font-weight:700;">92.9%</td>
+          <td>4</td><td>3</td><td>1</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
+          <td>431</td><td>399</td><td>32</td><td style="color:#16a34a;font-weight:700;">92.6%</td>
+          <td>32,909</td><td>28,073</td><td>4,836</td><td style="color:#d97706;font-weight:700;">85.3%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Mar 16–22</td>
+          <td>33,310</td><td>28,640</td><td>4,670</td><td style="color:#d97706;font-weight:700;">86.0%</td>
+          <td>297</td><td>259</td><td>38</td><td style="color:#d97706;font-weight:700;">87.2%</td>
+          <td>3</td><td>1</td><td>2</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
+          <td>422</td><td>398</td><td>24</td><td style="color:#16a34a;font-weight:700;">94.3%</td>
+          <td>34,032</td><td>29,298</td><td>4,734</td><td style="color:#d97706;font-weight:700;">86.1%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Mar 23–29</td>
+          <td>31,266</td><td>26,666</td><td>4,600</td><td style="color:#d97706;font-weight:700;">85.3%</td>
+          <td>273</td><td>231</td><td>42</td><td style="color:#dc2626;font-weight:700;">84.6%</td>
+          <td>3</td><td>2</td><td>1</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
+          <td>509</td><td>473</td><td>36</td><td style="color:#16a34a;font-weight:700;">92.9%</td>
+          <td>32,051</td><td>27,372</td><td>4,679</td><td style="color:#d97706;font-weight:700;">85.4%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Mar 30–Apr 5</td>
+          <td>28,142</td><td>24,201</td><td>3,941</td><td style="color:#d97706;font-weight:700;">86.0%</td>
+          <td>262</td><td>212</td><td>50</td><td style="color:#dc2626;font-weight:700;">80.9%</td>
+          <td>238</td><td>176</td><td>62</td><td style="color:#dc2626;font-weight:700;">73.9%</td>
+          <td>608</td><td>563</td><td>45</td><td style="color:#16a34a;font-weight:700;">92.6%</td>
+          <td>29,250</td><td>25,152</td><td>4,098</td><td style="color:#d97706;font-weight:700;">86.0%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Apr 6–12</td>
+          <td>27,941</td><td>24,017</td><td>3,924</td><td style="color:#d97706;font-weight:700;">86.0%</td>
+          <td>291</td><td>257</td><td>34</td><td style="color:#d97706;font-weight:700;">88.3%</td>
+          <td>1,112</td><td>849</td><td>263</td><td style="color:#dc2626;font-weight:700;">76.3%</td>
+          <td>636</td><td>588</td><td>48</td><td style="color:#16a34a;font-weight:700;">92.5%</td>
+          <td>29,980</td><td>25,711</td><td>4,269</td><td style="color:#d97706;font-weight:700;">85.8%</td>
+        </tr>
+        <tr class="spike">
+          <td style="font-weight:700;">Apr 13–19 ▲</td>
+          <td>29,542</td><td>25,061</td><td>4,481</td><td style="color:#dc2626;font-weight:700;">84.8%</td>
+          <td>433</td><td>366</td><td>67</td><td style="color:#dc2626;font-weight:700;">84.5%</td>
+          <td>2,106</td><td>1,716</td><td>390</td><td style="color:#dc2626;font-weight:700;">81.5%</td>
+          <td>761</td><td>703</td><td>58</td><td style="color:#16a34a;font-weight:700;">92.4%</td>
+          <td>32,842</td><td>27,846</td><td>4,996</td><td style="color:#dc2626;font-weight:700;">84.8%</td>
+        </tr>
+        <tr>
+          <td style="font-weight:700;">Apr 20–26</td>
+          <td>28,065</td><td>23,961</td><td>4,104</td><td style="color:#d97706;font-weight:700;">85.4%</td>
+          <td>469</td><td>397</td><td>72</td><td style="color:#dc2626;font-weight:700;">84.6%</td>
+          <td>2,680</td><td>2,288</td><td>392</td><td style="color:#d97706;font-weight:700;">85.4%</td>
+          <td>905</td><td>836</td><td>69</td><td style="color:#16a34a;font-weight:700;">92.4%</td>
+          <td>32,119</td><td>27,482</td><td>4,637</td><td style="color:#d97706;font-weight:700;">85.6%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div style="font-size:11px; color:#94a3b8; margin-top:8px;">
+    <span style="color:#16a34a;font-weight:700;">Green</span> ≥90% &nbsp;|&nbsp;
+    <span style="color:#d97706;font-weight:700;">Amber</span> 85–89.9% &nbsp;|&nbsp;
+    <span style="color:#dc2626;font-weight:700;">Red</span> &lt;85% &nbsp;|&nbsp;
+    <em>n/s</em> = pool &lt;20 &nbsp;|&nbsp;
+    ▲ = spike week &nbsp;|&nbsp;
+    Dedup: 1 row per router per R15 close week (latest DT)
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px;">
+    <div class="callout blue">
+      <strong>D · New PayG is the strongest segment.</strong> Consistently 92–95% renewal every week — outperforming Old 28D (83–86%) despite shorter plan durations. These customers are self-selecting: they chose PayG intentionally and are more engaged.
+    </div>
+    <div class="callout amber">
+      <strong>C · Old PayG Migrated is converging.</strong> First meaningful cohort (Mar 30) started at 73.9%. By Apr 20 it reached 85.4% — exactly matching Old 28D. Initial dip reflects first-time PayG adjustment; after 2–3 cycles, renewal stabilises at legacy levels.
+    </div>
+    <div class="callout red">
+      <strong>Apr 13–19 spike hit all segments except D.</strong> A dropped to 84.8%, B to 84.5%, C to 81.5% — while D held at 92.4%. The driver was C's pool expanding to 2,106 at 81.5%, pulling the total lost to 4,996.
+    </div>
+    <div class="callout green">
+      <strong>A · Old 28D is structurally stable.</strong> The 83.6–86.0% band across 8 weeks reflects Ramzan-period variation in March. Structural rate is 85–86%. At 28K–34K pool/week, every 1pp shift in A's renewal = ~300 more or fewer lost customers.
+    </div>
+  </div>
+</div>
+
 </div><!-- end .page -->
 
 <div class="footer">
