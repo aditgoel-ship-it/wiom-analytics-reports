@@ -634,6 +634,11 @@ input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer
     </div>
   </div>
 
+  <div class="card-label" style="margin-bottom:8px;">R15 Renewal Rate by Segment — Weekly Trend</div>
+  <div class="card-title" style="margin-bottom:4px;">C (Old PayG Migrated) starts at 74.9% and converges to 85.1% — matching A within 4 weeks</div>
+  <div style="font-size:12px; color:#64748b; margin-bottom:14px;">Dotted line = 85% reference (structural Old 28D rate). Weeks where pool &lt;20 are omitted (B early March, C first 4 weeks).</div>
+  <div class="ch" style="height:300px; margin-bottom:24px;"><canvas id="c-seg-r15"></canvas></div>
+
   <div class="data-table-wrap">
     <table class="dt" style="font-size:11px; min-width:1200px;">
       <thead>
@@ -1062,6 +1067,98 @@ function runProjection() {
       }
     });
   }
+}
+
+// ─── CHART: SEGMENT R15% LINE ───────────────────────────────────────────
+{
+  const segWeeks = ['Mar 2','Mar 9','Mar 16','Mar 23','Mar 30','Apr 6','Apr 13','Apr 20'];
+  const segA = [84.2, 84.8, 85.9, 85.4, 86.3, 86.2, 85.1, 85.7];
+  const segB = [null, 91.3, 85.8, 84.7, 73.9, 81.2, 77.9, 78.4];
+  const segC = [null, null, null, null, 74.9, 76.4, 82.1, 85.1];
+  const segD = [90.8, 88.8, 93.0, 89.1, 90.9, 90.3, 90.7, 90.8];
+  const ref85 = segWeeks.map(() => 85.0);
+
+  new Chart(document.getElementById('c-seg-r15'), {
+    type: 'line',
+    data: {
+      labels: segWeeks,
+      datasets: [
+        {
+          label: 'D · New PayG',
+          data: segD,
+          borderColor: '#7c3aed',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 4,
+          tension: 0.3,
+          spanGaps: false
+        },
+        {
+          label: 'A · Old 28D',
+          data: segA,
+          borderColor: '#0e7490',
+          backgroundColor: 'transparent',
+          borderWidth: 2.5,
+          pointRadius: 4,
+          tension: 0.3
+        },
+        {
+          label: 'B · New 28D',
+          data: segB,
+          borderColor: '#1e40af',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 4,
+          tension: 0.3,
+          spanGaps: false
+        },
+        {
+          label: 'C · Old PayG Migrated',
+          data: segC,
+          borderColor: '#b45309',
+          backgroundColor: 'rgba(180,83,9,0.08)',
+          borderWidth: 2.5,
+          pointRadius: 5,
+          tension: 0.3,
+          spanGaps: false,
+          fill: false
+        },
+        {
+          label: '85% reference',
+          data: ref85,
+          borderColor: '#94a3b8',
+          backgroundColor: 'transparent',
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          tension: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.parsed.y !== null
+              ? ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`
+              : null
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 70, max: 96,
+          ticks: { callback: v => v + '%' },
+          grid: { color: 'rgba(0,0,0,0.04)' }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
 }
 
 // Wire up sliders
