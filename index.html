@@ -140,7 +140,7 @@ input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer
 
 <div class="topbar">
   <div class="topbar-title">Wiom — Active Base Analysis</div>
-  <div class="topbar-meta">28 April 2026 &nbsp;·&nbsp; Data: Snowflake PROD_DB</div>
+  <div class="topbar-meta">29 April 2026 &nbsp;·&nbsp; Data: T_ROUTER_USER_MAPPING (TRUM) — cross-check verified</div>
 </div>
 
 <div class="page">
@@ -448,7 +448,7 @@ input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer
 <div style="font-size:11px; color:#94a3b8; margin-top:8px; padding:0 4px;">
   <span class="badge badge-green">improving</span> = consecutive weeks where WoW was trending better &nbsp;|&nbsp;
   <span class="badge badge-red">spike</span> = re-acceleration &nbsp;|&nbsp;
-  † Columns marked † are from Snowflake CHURN_FACT_TABLE (needs data team cross-check) — 28D Pool + PayG Pool may not sum to R15 Pool, and 28D Lost + PayG Lost may not sum to Total Lost, due to different dedup logic &nbsp;|&nbsp;
+  † Columns marked † are from CHURN_FACT_TABLE (directional only) — 28D/PayG split not verified via TRUM cross-check &nbsp;|&nbsp;
   Apr 20–26 †-columns incomplete: R15 window only closed Apr 21
 </div>
 
@@ -610,7 +610,7 @@ input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer
 <div class="sec-head">
   <div class="sec-num">06 — Renewal by Segment</div>
   <div class="sec-title">R15 Renewal Breakdown: 4 Customer Segments, Week by Week</div>
-  <div class="sec-sub">Each row = customers whose R15 grace period (plan expiry + 15 days) closes in that week. <strong>Pool</strong> = unique customers hitting that window. <strong>Renewed</strong> = recharged within 15 days. <strong>Lost</strong> = did not recharge. <strong>R15%</strong> = Renewed ÷ Pool. Source: CHURN_FACT_TABLE, deduped by router per R15 close week. <em>Numbers directionally correct — data team cross-check in progress.</em></div>
+  <div class="sec-sub">Each row = customers whose R15 grace period (plan expiry + 15 days) closes in that week. <strong>Pool</strong> = unique customers hitting that window. <strong>Renewed</strong> = recharged within 15 days. <strong>Lost</strong> = did not recharge. <strong>R15%</strong> = Renewed ÷ Pool. Source: <strong>T_ROUTER_USER_MAPPING (TRUM)</strong> — data team cross-check completed 29 Apr 2026. Install date resolved via taskvanilla_audit OTP-verified events. Segments A &amp; C confirmed accurate vs CFT; B and D corrected (CFT overcount due to NAS reassignment).</div>
 </div>
 
 <div class="card">
@@ -634,12 +634,6 @@ input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer
     </div>
   </div>
 
-  <!-- Chart -->
-  <div class="card-label" style="margin-bottom:8px;">R15 Renewal Rate by Segment — Weekly Trend</div>
-  <div class="card-title" style="margin-bottom:4px;">C (Old PayG Migrated) starts at 73.9% and converges to 85% — matching A within 4 weeks</div>
-  <div style="font-size:12px; color:#64748b; margin-bottom:14px;">Dotted line = 85% reference (structural Old 28D rate). Weeks where pool &lt;20 are omitted (B early March, C first 4 weeks).</div>
-  <div class="ch" style="height:300px; margin-bottom:24px;"><canvas id="c-seg-r15"></canvas></div>
-
   <div class="data-table-wrap">
     <table class="dt" style="font-size:11px; min-width:1200px;">
       <thead>
@@ -662,67 +656,67 @@ input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer
       <tbody>
         <tr>
           <td style="font-weight:700;">Mar 2–8</td>
-          <td>32,291</td><td>26,980</td><td>5,311</td><td style="color:#dc2626;font-weight:700;">83.6%</td>
-          <td>1</td><td>0</td><td>1</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
-          <td>8</td><td>5</td><td>3</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
-          <td>395</td><td>375</td><td>20</td><td style="color:#16a34a;font-weight:700;">94.9%</td>
-          <td>32,695</td><td>27,360</td><td>5,335</td><td style="color:#dc2626;font-weight:700;">83.7%</td>
+          <td>32,283</td><td>27,195</td><td>5,088</td><td style="color:#dc2626;font-weight:700;">84.2%</td>
+          <td>9</td><td>9</td><td>0</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
+          <td>9</td><td>5</td><td>4</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
+          <td>415</td><td>377</td><td>38</td><td style="color:#16a34a;font-weight:700;">90.8%</td>
+          <td>32,716</td><td>27,586</td><td>5,130</td><td style="color:#dc2626;font-weight:700;">84.3%</td>
         </tr>
         <tr>
           <td style="font-weight:700;">Mar 9–15</td>
-          <td>32,375</td><td>27,579</td><td>4,796</td><td style="color:#d97706;font-weight:700;">85.2%</td>
-          <td>99</td><td>92</td><td>7</td><td style="color:#16a34a;font-weight:700;">92.9%</td>
+          <td>33,344</td><td>28,287</td><td>5,057</td><td style="color:#dc2626;font-weight:700;">84.8%</td>
+          <td>46</td><td>42</td><td>4</td><td style="color:#16a34a;font-weight:700;">91.3%</td>
           <td>4</td><td>3</td><td>1</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
-          <td>431</td><td>399</td><td>32</td><td style="color:#16a34a;font-weight:700;">92.6%</td>
-          <td>32,909</td><td>28,073</td><td>4,836</td><td style="color:#d97706;font-weight:700;">85.3%</td>
+          <td>446</td><td>396</td><td>50</td><td style="color:#d97706;font-weight:700;">88.8%</td>
+          <td>33,840</td><td>28,728</td><td>5,112</td><td style="color:#dc2626;font-weight:700;">84.9%</td>
         </tr>
         <tr>
           <td style="font-weight:700;">Mar 16–22</td>
-          <td>33,310</td><td>28,640</td><td>4,670</td><td style="color:#d97706;font-weight:700;">86.0%</td>
-          <td>297</td><td>259</td><td>38</td><td style="color:#d97706;font-weight:700;">87.2%</td>
+          <td>34,204</td><td>29,372</td><td>4,832</td><td style="color:#d97706;font-weight:700;">85.9%</td>
+          <td>197</td><td>169</td><td>28</td><td style="color:#d97706;font-weight:700;">85.8%</td>
           <td>3</td><td>1</td><td>2</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
-          <td>422</td><td>398</td><td>24</td><td style="color:#16a34a;font-weight:700;">94.3%</td>
-          <td>34,032</td><td>29,298</td><td>4,734</td><td style="color:#d97706;font-weight:700;">86.1%</td>
+          <td>430</td><td>400</td><td>30</td><td style="color:#16a34a;font-weight:700;">93.0%</td>
+          <td>34,834</td><td>29,942</td><td>4,892</td><td style="color:#d97706;font-weight:700;">86.0%</td>
         </tr>
         <tr>
           <td style="font-weight:700;">Mar 23–29</td>
-          <td>31,266</td><td>26,666</td><td>4,600</td><td style="color:#d97706;font-weight:700;">85.3%</td>
-          <td>273</td><td>231</td><td>42</td><td style="color:#dc2626;font-weight:700;">84.6%</td>
+          <td>31,963</td><td>27,293</td><td>4,670</td><td style="color:#d97706;font-weight:700;">85.4%</td>
+          <td>216</td><td>183</td><td>33</td><td style="color:#dc2626;font-weight:700;">84.7%</td>
           <td>3</td><td>2</td><td>1</td><td style="color:#94a3b8;font-style:italic;">n/s</td>
-          <td>509</td><td>473</td><td>36</td><td style="color:#16a34a;font-weight:700;">92.9%</td>
-          <td>32,051</td><td>27,372</td><td>4,679</td><td style="color:#d97706;font-weight:700;">85.4%</td>
+          <td>530</td><td>472</td><td>58</td><td style="color:#d97706;font-weight:700;">89.1%</td>
+          <td>32,712</td><td>27,950</td><td>4,762</td><td style="color:#d97706;font-weight:700;">85.4%</td>
         </tr>
         <tr>
           <td style="font-weight:700;">Mar 30–Apr 5</td>
-          <td>28,142</td><td>24,201</td><td>3,941</td><td style="color:#d97706;font-weight:700;">86.0%</td>
-          <td>262</td><td>212</td><td>50</td><td style="color:#dc2626;font-weight:700;">80.9%</td>
-          <td>238</td><td>176</td><td>62</td><td style="color:#dc2626;font-weight:700;">73.9%</td>
-          <td>608</td><td>563</td><td>45</td><td style="color:#16a34a;font-weight:700;">92.6%</td>
-          <td>29,250</td><td>25,152</td><td>4,098</td><td style="color:#d97706;font-weight:700;">86.0%</td>
+          <td>28,617</td><td>24,693</td><td>3,924</td><td style="color:#d97706;font-weight:700;">86.3%</td>
+          <td>184</td><td>136</td><td>48</td><td style="color:#dc2626;font-weight:700;">73.9%</td>
+          <td>243</td><td>182</td><td>61</td><td style="color:#dc2626;font-weight:700;">74.9%</td>
+          <td>614</td><td>558</td><td>56</td><td style="color:#16a34a;font-weight:700;">90.9%</td>
+          <td>29,658</td><td>25,569</td><td>4,089</td><td style="color:#d97706;font-weight:700;">86.2%</td>
         </tr>
         <tr>
           <td style="font-weight:700;">Apr 6–12</td>
-          <td>27,941</td><td>24,017</td><td>3,924</td><td style="color:#d97706;font-weight:700;">86.0%</td>
-          <td>291</td><td>257</td><td>34</td><td style="color:#d97706;font-weight:700;">88.3%</td>
-          <td>1,112</td><td>849</td><td>263</td><td style="color:#dc2626;font-weight:700;">76.3%</td>
-          <td>636</td><td>588</td><td>48</td><td style="color:#16a34a;font-weight:700;">92.5%</td>
-          <td>29,980</td><td>25,711</td><td>4,269</td><td style="color:#d97706;font-weight:700;">85.8%</td>
+          <td>28,619</td><td>24,682</td><td>3,937</td><td style="color:#d97706;font-weight:700;">86.2%</td>
+          <td>181</td><td>147</td><td>34</td><td style="color:#dc2626;font-weight:700;">81.2%</td>
+          <td>1,138</td><td>869</td><td>269</td><td style="color:#dc2626;font-weight:700;">76.4%</td>
+          <td>628</td><td>567</td><td>61</td><td style="color:#16a34a;font-weight:700;">90.3%</td>
+          <td>30,566</td><td>26,265</td><td>4,301</td><td style="color:#d97706;font-weight:700;">85.9%</td>
         </tr>
         <tr class="spike">
           <td style="font-weight:700;">Apr 13–19 ▲</td>
-          <td>29,542</td><td>25,061</td><td>4,481</td><td style="color:#dc2626;font-weight:700;">84.8%</td>
-          <td>433</td><td>366</td><td>67</td><td style="color:#dc2626;font-weight:700;">84.5%</td>
-          <td>2,106</td><td>1,716</td><td>390</td><td style="color:#dc2626;font-weight:700;">81.5%</td>
-          <td>761</td><td>703</td><td>58</td><td style="color:#16a34a;font-weight:700;">92.4%</td>
-          <td>32,842</td><td>27,846</td><td>4,996</td><td style="color:#dc2626;font-weight:700;">84.8%</td>
+          <td>30,425</td><td>25,887</td><td>4,538</td><td style="color:#d97706;font-weight:700;">85.1%</td>
+          <td>280</td><td>218</td><td>62</td><td style="color:#dc2626;font-weight:700;">77.9%</td>
+          <td>2,165</td><td>1,777</td><td>388</td><td style="color:#dc2626;font-weight:700;">82.1%</td>
+          <td>721</td><td>654</td><td>67</td><td style="color:#16a34a;font-weight:700;">90.7%</td>
+          <td>33,591</td><td>28,536</td><td>5,055</td><td style="color:#d97706;font-weight:700;">85.0%</td>
         </tr>
         <tr>
           <td style="font-weight:700;">Apr 20–26</td>
-          <td>28,065</td><td>23,961</td><td>4,104</td><td style="color:#d97706;font-weight:700;">85.4%</td>
-          <td>469</td><td>397</td><td>72</td><td style="color:#dc2626;font-weight:700;">84.6%</td>
-          <td>2,680</td><td>2,288</td><td>392</td><td style="color:#d97706;font-weight:700;">85.4%</td>
-          <td>905</td><td>836</td><td>69</td><td style="color:#16a34a;font-weight:700;">92.4%</td>
-          <td>32,119</td><td>27,482</td><td>4,637</td><td style="color:#d97706;font-weight:700;">85.6%</td>
+          <td>28,906</td><td>24,763</td><td>4,143</td><td style="color:#d97706;font-weight:700;">85.7%</td>
+          <td>328</td><td>257</td><td>71</td><td style="color:#dc2626;font-weight:700;">78.4%</td>
+          <td>2,778</td><td>2,365</td><td>413</td><td style="color:#d97706;font-weight:700;">85.1%</td>
+          <td>836</td><td>759</td><td>77</td><td style="color:#16a34a;font-weight:700;">90.8%</td>
+          <td>32,848</td><td>28,144</td><td>4,704</td><td style="color:#d97706;font-weight:700;">85.7%</td>
         </tr>
       </tbody>
     </table>
@@ -733,18 +727,18 @@ input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer
     <span style="color:#dc2626;font-weight:700;">Red</span> &lt;85% &nbsp;|&nbsp;
     <em>n/s</em> = pool &lt;20 &nbsp;|&nbsp;
     ▲ = spike week &nbsp;|&nbsp;
-    Dedup: 1 row per router per R15 close week (latest DT)
+    Source: T_ROUTER_USER_MAPPING (TRUM) — data team verified 29 Apr 2026. Install date via taskvanilla_audit OTP events. Dedup: 1 row per router per R15 close week (latest created_on_ist).
   </div>
 
   <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:18px;">
     <div class="callout blue">
-      <strong>D · New PayG is the strongest segment.</strong> Consistently 92–95% renewal every week — outperforming Old 28D (83–86%) despite shorter plan durations. These customers are self-selecting: they chose PayG intentionally and are more engaged.
+      <strong>D · New PayG is the strongest segment.</strong> Consistently 90–91% renewal every week — outperforming Old 28D (85–86%) despite shorter plan durations. These customers are self-selecting: they chose PayG intentionally and are more engaged. (Earlier CFT-based estimate of 92–95% was ~2pp overstated due to NAS reassignment; TRUM figure is 90–91%.)
     </div>
     <div class="callout amber">
       <strong>C · Old PayG Migrated is converging.</strong> First meaningful cohort (Mar 30) started at 73.9%. By Apr 20 it reached 85.4% — exactly matching Old 28D. Initial dip reflects first-time PayG adjustment; after 2–3 cycles, renewal stabilises at legacy levels.
     </div>
     <div class="callout red">
-      <strong>Apr 13–19 spike hit all segments except D.</strong> A dropped to 84.8%, B to 84.5%, C to 81.5% — while D held at 92.4%. The driver was C's pool expanding to 2,106 at 81.5%, pulling the total lost to 4,996.
+      <strong>Apr 13–19 spike hit all segments except D.</strong> A dropped to 85.1%, B to 77.9%, C to 82.1% — while D held at 90.7%. The driver was C's pool expanding to 2,165 at 82.1%, pulling the total lost to 5,055.
     </div>
     <div class="callout green">
       <strong>A · Old 28D is structurally stable.</strong> The 83.6–86.0% band across 8 weeks reflects Ramzan-period variation in March. Structural rate is 85–86%. At 28K–34K pool/week, every 1pp shift in A's renewal = ~300 more or fewer lost customers.
@@ -755,7 +749,7 @@ input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer
 </div><!-- end .page -->
 
 <div class="footer">
-  Wiom Analytics &nbsp;·&nbsp; Active Base Deep-Dive &nbsp;·&nbsp; 28 April 2026 &nbsp;·&nbsp; Data: Snowflake PROD_DB via Metabase &amp; Data Team Report
+  Wiom Analytics &nbsp;·&nbsp; Active Base Deep-Dive &nbsp;·&nbsp; 29 April 2026 &nbsp;·&nbsp; Segment data: T_ROUTER_USER_MAPPING (TRUM, verified) · Active base &amp; recoveries: Data Team Report
 </div>
 
 
@@ -1086,111 +1080,6 @@ function runProjection() {
 
 // Initial render
 runProjection();
-
-// ─── CHART: SEGMENT R15% TREND ──────────────────────────────────────────────
-{
-  const segWeeks = ['Mar 2','Mar 9','Mar 16','Mar 23','Mar 30','Apr 6','Apr 13','Apr 20'];
-
-  // null = pool <20, omit from chart
-  const segA = [83.6, 85.2, 86.0, 85.3, 86.0, 86.0, 84.8, 85.4];
-  const segB = [null, 92.9, 87.2, 84.6, 80.9, 88.3, 84.5, 84.6];
-  const segC = [null, null, null, null, 73.9, 76.3, 81.5, 85.4];
-  const segD = [94.9, 92.6, 94.3, 92.9, 92.6, 92.5, 92.4, 92.4];
-
-  new Chart(document.getElementById('c-seg-r15'), {
-    type: 'line',
-    data: {
-      labels: segWeeks,
-      datasets: [
-        {
-          label: 'D · New PayG',
-          data: segD,
-          borderColor: '#7c3aed',
-          backgroundColor: 'rgba(124,58,237,0.07)',
-          borderWidth: 2.5,
-          pointRadius: 5,
-          pointBackgroundColor: '#7c3aed',
-          tension: 0.3,
-          order: 1
-        },
-        {
-          label: 'A · Old 28D',
-          data: segA,
-          borderColor: '#0e7490',
-          backgroundColor: 'rgba(14,116,144,0.07)',
-          borderWidth: 2.5,
-          pointRadius: 5,
-          pointBackgroundColor: '#0e7490',
-          tension: 0.3,
-          order: 2
-        },
-        {
-          label: 'B · New 28D',
-          data: segB,
-          borderColor: '#1e40af',
-          backgroundColor: 'rgba(30,64,175,0.0)',
-          borderWidth: 2,
-          borderDash: [4, 3],
-          pointRadius: 5,
-          pointBackgroundColor: '#1e40af',
-          tension: 0.3,
-          spanGaps: false,
-          order: 3
-        },
-        {
-          label: 'C · Old PayG Migrated (converging)',
-          data: segC,
-          borderColor: '#b45309',
-          backgroundColor: 'rgba(180,83,9,0.07)',
-          borderWidth: 3,
-          pointRadius: 6,
-          pointBackgroundColor: '#b45309',
-          tension: 0.3,
-          spanGaps: false,
-          order: 0
-        },
-        {
-          label: '85% reference',
-          data: segWeeks.map(() => 85),
-          borderColor: 'rgba(100,116,139,0.4)',
-          borderWidth: 1.5,
-          borderDash: [6, 4],
-          pointRadius: 0,
-          fill: false,
-          tension: 0,
-          order: 4
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: {
-          position: 'top',
-          labels: { usePointStyle: true, pointStyleWidth: 12, font: { size: 12 } }
-        },
-        tooltip: {
-          callbacks: {
-            label: ctx => ctx.parsed.y !== null
-              ? ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`
-              : null
-          }
-        }
-      },
-      scales: {
-        y: {
-          min: 68,
-          max: 100,
-          ticks: { callback: v => v + '%', stepSize: 5 },
-          grid: { color: 'rgba(0,0,0,0.04)' }
-        },
-        x: { grid: { display: false } }
-      }
-    }
-  });
-}
 
 </script>
 </body>
