@@ -634,6 +634,12 @@ input[type=range] { width:100%; height:6px; accent-color:#2563eb; cursor:pointer
     </div>
   </div>
 
+  <!-- Chart -->
+  <div class="card-label" style="margin-bottom:8px;">R15 Renewal Rate by Segment — Weekly Trend</div>
+  <div class="card-title" style="margin-bottom:4px;">C (Old PayG Migrated) starts at 73.9% and converges to 85% — matching A within 4 weeks</div>
+  <div style="font-size:12px; color:#64748b; margin-bottom:14px;">Dotted line = 85% reference (structural Old 28D rate). Weeks where pool &lt;20 are omitted (B early March, C first 4 weeks).</div>
+  <div class="ch" style="height:300px; margin-bottom:24px;"><canvas id="c-seg-r15"></canvas></div>
+
   <div class="data-table-wrap">
     <table class="dt" style="font-size:11px; min-width:1200px;">
       <thead>
@@ -1080,6 +1086,111 @@ function runProjection() {
 
 // Initial render
 runProjection();
+
+// ─── CHART: SEGMENT R15% TREND ──────────────────────────────────────────────
+{
+  const segWeeks = ['Mar 2','Mar 9','Mar 16','Mar 23','Mar 30','Apr 6','Apr 13','Apr 20'];
+
+  // null = pool <20, omit from chart
+  const segA = [83.6, 85.2, 86.0, 85.3, 86.0, 86.0, 84.8, 85.4];
+  const segB = [null, 92.9, 87.2, 84.6, 80.9, 88.3, 84.5, 84.6];
+  const segC = [null, null, null, null, 73.9, 76.3, 81.5, 85.4];
+  const segD = [94.9, 92.6, 94.3, 92.9, 92.6, 92.5, 92.4, 92.4];
+
+  new Chart(document.getElementById('c-seg-r15'), {
+    type: 'line',
+    data: {
+      labels: segWeeks,
+      datasets: [
+        {
+          label: 'D · New PayG',
+          data: segD,
+          borderColor: '#7c3aed',
+          backgroundColor: 'rgba(124,58,237,0.07)',
+          borderWidth: 2.5,
+          pointRadius: 5,
+          pointBackgroundColor: '#7c3aed',
+          tension: 0.3,
+          order: 1
+        },
+        {
+          label: 'A · Old 28D',
+          data: segA,
+          borderColor: '#0e7490',
+          backgroundColor: 'rgba(14,116,144,0.07)',
+          borderWidth: 2.5,
+          pointRadius: 5,
+          pointBackgroundColor: '#0e7490',
+          tension: 0.3,
+          order: 2
+        },
+        {
+          label: 'B · New 28D',
+          data: segB,
+          borderColor: '#1e40af',
+          backgroundColor: 'rgba(30,64,175,0.0)',
+          borderWidth: 2,
+          borderDash: [4, 3],
+          pointRadius: 5,
+          pointBackgroundColor: '#1e40af',
+          tension: 0.3,
+          spanGaps: false,
+          order: 3
+        },
+        {
+          label: 'C · Old PayG Migrated (converging)',
+          data: segC,
+          borderColor: '#b45309',
+          backgroundColor: 'rgba(180,83,9,0.07)',
+          borderWidth: 3,
+          pointRadius: 6,
+          pointBackgroundColor: '#b45309',
+          tension: 0.3,
+          spanGaps: false,
+          order: 0
+        },
+        {
+          label: '85% reference',
+          data: segWeeks.map(() => 85),
+          borderColor: 'rgba(100,116,139,0.4)',
+          borderWidth: 1.5,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          fill: false,
+          tension: 0,
+          order: 4
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { usePointStyle: true, pointStyleWidth: 12, font: { size: 12 } }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ctx.parsed.y !== null
+              ? ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`
+              : null
+          }
+        }
+      },
+      scales: {
+        y: {
+          min: 68,
+          max: 100,
+          ticks: { callback: v => v + '%', stepSize: 5 },
+          grid: { color: 'rgba(0,0,0,0.04)' }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
 
 </script>
 </body>
