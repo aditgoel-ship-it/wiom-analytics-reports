@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiom — Migration Story | April 2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:#f1f5f9; color:#1e293b; }
+
+.topbar { background:#0f172a; padding:14px 40px; display:flex; justify-content:space-between; align-items:center; }
+.topbar-title { color:#f8fafc; font-weight:700; font-size:17px; }
+.topbar-meta { color:#64748b; font-size:13px; }
+
+.page { max-width:1080px; margin:0 auto; padding:0 32px 60px; }
+
+.sec-head { padding:36px 0 18px; }
+.sec-num { font-size:11px; font-weight:700; letter-spacing:2px; color:#7c3aed; text-transform:uppercase; margin-bottom:4px; }
+.sec-title { font-size:22px; font-weight:800; color:#1e293b; }
+.sec-sub { font-size:14px; color:#64748b; margin-top:6px; max-width:720px; line-height:1.65; }
+
+.card { background:#fff; border-radius:12px; padding:28px; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+.card + .card { margin-top:16px; }
+.card-label { font-size:11px; font-weight:700; letter-spacing:1.5px; color:#94a3b8; text-transform:uppercase; margin-bottom:6px; }
+.card-title { font-size:15px; font-weight:700; color:#1e293b; margin-bottom:4px; }
+.card-sub { font-size:12px; color:#64748b; margin-bottom:18px; }
+
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.ch { position:relative; }
+
+.callout { border-radius:8px; padding:14px 16px; margin-top:14px; font-size:13px; line-height:1.6; color:#374151; }
+.callout.red    { background:#fef2f2; border-left:3px solid #dc2626; }
+.callout.amber  { background:#fffbeb; border-left:3px solid #d97706; }
+.callout.green  { background:#f0fdf4; border-left:3px solid #16a34a; }
+.callout.teal   { background:#f0fdfa; border-left:3px solid #0e7490; }
+.callout.purple { background:#faf5ff; border-left:3px solid #7c3aed; }
+
+.footer { background:#0f172a; color:#475569; text-align:center; padding:18px; font-size:12px; margin-top:40px; }
+
+/* ── Section 1: Plan Setup ── */
+.plan-grid { display:grid; grid-template-columns:1fr 56px 1fr; align-items:center; gap:0; margin:24px 0 8px; }
+.plan-box { border-radius:12px; padding:22px 24px; }
+.plan-box.p100 { background:#f0fdfa; border:2px solid #0e7490; }
+.plan-box.p50  { background:#fffbeb; border:2px solid #b45309; }
+.plan-tag  { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+.plan-tag.t100 { color:#0e7490; }
+.plan-tag.t50  { color:#b45309; }
+.plan-price { font-size:36px; font-weight:900; line-height:1; margin-bottom:4px; }
+.plan-price.c100 { color:#0e7490; }
+.plan-price.c50  { color:#b45309; }
+.plan-spec { font-size:13px; color:#64748b; line-height:1.5; }
+.plan-verdict { display:inline-flex; align-items:center; gap:5px; margin-top:12px; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700; }
+.v-good { background:#dcfce7; color:#16a34a; }
+.v-warn { background:#fef3c7; color:#b45309; }
+.plan-arrow { text-align:center; }
+.arrow-line { width:2px; height:60px; background:#cbd5e1; margin:0 auto; }
+.arrow-head { font-size:20px; color:#94a3b8; text-align:center; margin-top:-4px; }
+.launch-badge { background:#0f172a; color:#f8fafc; border-radius:20px; padding:5px 12px; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; display:inline-block; margin-bottom:8px; }
+
+.new-payg-box { background:#f8fafc; border:2px dashed #cbd5e1; border-radius:12px; padding:22px 24px; margin-top:0; }
+.payg-plans { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+.payg-chip { padding:7px 14px; border-radius:8px; font-size:12px; font-weight:600; border:1px solid #e2e8f0; background:#fff; }
+.payg-chip.main { background:#0e7490; color:#fff; border-color:#0e7490; }
+.payg-chip.short { background:#fff7ed; color:#b45309; border-color:#fed7aa; }
+.payg-note { font-size:11px; color:#94a3b8; margin-top:10px; }
+
+/* ── Section 2: Migration bars ── */
+.legend { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:16px; }
+.leg-item { display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#374151; }
+.leg-dot { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+
+/* ── Section 3: Snapshot flow bars ── */
+.snap-row { margin-bottom:24px; }
+.snap-label { font-size:12px; font-weight:700; color:#374151; margin-bottom:6px; display:flex; justify-content:space-between; }
+.snap-bar { display:flex; border-radius:8px; overflow:hidden; height:44px; }
+.sb { display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:rgba(255,255,255,0.95); transition:width 0.3s; overflow:hidden; white-space:nowrap; }
+.sb.sa { background:#64748b; }
+.sb.se { background:#0e7490; }
+.sb.sc { background:#b45309; }
+.sb.sx { background:#dc2626; }
+.snap-legend { display:flex; gap:16px; margin-top:8px; flex-wrap:wrap; }
+.snap-leg-item { font-size:11px; display:flex; align-items:center; gap:5px; }
+.snap-dot { width:10px; height:10px; border-radius:2px; }
+
+.snap-compare { display:grid; grid-template-columns:100px 1fr; gap:12px; align-items:center; margin-bottom:12px; }
+.snap-spd-label { font-size:12px; font-weight:700; text-align:right; padding-right:8px; }
+
+/* ── Section 4: Post-migration ── */
+.outcome-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:0; }
+.outcome-card { background:#f8fafc; border-radius:10px; padding:20px 22px; border:1px solid #e2e8f0; }
+.oc-header { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.oc-badge { padding:4px 12px; border-radius:20px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:1px; }
+.oc-badge.e100 { background:#ccfbf1; color:#0e7490; }
+.oc-badge.e50  { background:#fef9c3; color:#b45309; }
+.oc-badge.c100 { background:#ccfbf1; color:#0e7490; }
+.oc-badge.c50  { background:#fef9c3; color:#b45309; }
+.oc-title { font-size:13px; font-weight:700; }
+.oc-bar { display:flex; border-radius:6px; overflow:hidden; height:36px; margin-bottom:10px; }
+.ocb { display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff; }
+.ocb.renew-e { background:#0e7490; }
+.ocb.stay-c  { background:#b45309; }
+.ocb.up-e    { background:#0e7490; }
+.ocb.churn   { background:#dc2626; }
+.oc-rows { display:flex; flex-direction:column; gap:6px; }
+.oc-row  { display:flex; justify-content:space-between; align-items:center; font-size:12px; padding:4px 0; border-bottom:1px solid #f1f5f9; }
+.oc-row:last-child { border:none; }
+.oc-val  { font-weight:700; font-size:14px; }
+.oc-note { font-size:10px; color:#94a3b8; margin-top:8px; font-style:italic; }
+
+/* ── Section 5: Risk ── */
+.risk-header { background:#fef2f2; border:2px solid #fecaca; border-radius:12px; padding:24px 28px; margin-bottom:16px; }
+.risk-title { font-size:18px; font-weight:800; color:#dc2626; margin-bottom:6px; }
+.risk-sub { font-size:13px; color:#7f1d1d; line-height:1.6; }
+.risk-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:20px; }
+.risk-stat { background:#fff; border-radius:10px; padding:20px; text-align:center; border:1px solid #fecaca; }
+.risk-num { font-size:36px; font-weight:900; color:#dc2626; line-height:1; }
+.risk-lbl { font-size:12px; color:#64748b; margin-top:5px; line-height:1.4; }
+.risk-scenario { background:#fff7ed; border:1px solid #fed7aa; border-radius:10px; padding:20px 24px; margin-top:16px; }
+.risk-scenario-title { font-size:13px; font-weight:700; color:#b45309; margin-bottom:14px; }
+.scenario-flow { display:grid; grid-template-columns:1fr 40px 1fr 40px 1fr; align-items:center; gap:0; }
+.sf-box { background:#fff; border-radius:8px; padding:14px; text-align:center; border:1px solid #e2e8f0; }
+.sf-num { font-size:22px; font-weight:900; }
+.sf-num.r { color:#dc2626; }
+.sf-num.a { color:#b45309; }
+.sf-num.e { color:#0e7490; }
+.sf-lbl { font-size:11px; color:#64748b; margin-top:3px; line-height:1.4; }
+.sf-arrow { text-align:center; font-size:20px; color:#94a3b8; }
+
+/* Stat row */
+.stat-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:20px 0; }
+.stat { background:#fff; border-radius:10px; padding:18px; box-shadow:0 1px 3px rgba(0,0,0,0.07); border-top:3px solid; }
+.stat.red   { border-top-color:#dc2626; }
+.stat.teal  { border-top-color:#0e7490; }
+.stat.amber { border-top-color:#d97706; }
+.stat.slate { border-top-color:#64748b; }
+.stat-val { font-size:28px; font-weight:800; line-height:1; margin-bottom:4px; }
+.stat.red   .stat-val { color:#dc2626; }
+.stat.teal  .stat-val { color:#0e7490; }
+.stat.amber .stat-val { color:#d97706; }
+.stat.slate .stat-val { color:#64748b; }
+.stat-lbl { font-size:12px; color:#64748b; font-weight:600; }
+.stat-sub { font-size:11px; color:#94a3b8; margin-top:2px; }
+
+.divider { height:1px; background:#e2e8f0; margin:20px 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">Wiom — Old Base Migration Story</div>
+  <div class="topbar-meta">April 2026 &nbsp;·&nbsp; 100mbps vs 50mbps &nbsp;·&nbsp; What's happening and what's at risk</div>
+</div>
+
+<div class="page">
+
+<!-- ══════════════════════════════════════════
+     SECTION 1 — THE SETUP
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">01 — The Setup</div>
+  <div class="sec-title">Two old plans, one new system — very different price impact</div>
+  <div class="sec-sub">Before January 26, 2026, every Wiom customer was on a 28-day plan at one of two price points. When PayG launched, the new system offered a single 28D option at ₹565 — a saving for 100mbps customers, but a ₹65 increase for 50mbps customers.</div>
+</div>
+
+<div class="card">
+  <div class="card-label">Before Jan 26, 2026 → PayG Launch → New System</div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr 64px 1fr; gap:16px; align-items:start; margin-top:16px;">
+    <!-- Old 100mbps -->
+    <div class="plan-box p100">
+      <div class="plan-tag t100">Old Plan — 100mbps</div>
+      <div class="plan-price c100">₹575</div>
+      <div class="plan-spec">100 Mbps speed<br>Unlimited data · 28 days</div>
+      <div class="plan-verdict v-good">~40% of old base &nbsp;·&nbsp; ~12K R15 / week</div>
+    </div>
+    <!-- Old 50mbps -->
+    <div class="plan-box p50">
+      <div class="plan-tag t50">Old Plan — 50mbps</div>
+      <div class="plan-price c50">₹500</div>
+      <div class="plan-spec">50 Mbps speed<br>Unlimited data · 28 days</div>
+      <div class="plan-verdict v-warn">~60% of old base &nbsp;·&nbsp; ~18K R15 / week</div>
+    </div>
+    <!-- Arrow -->
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding-top:20px;">
+      <div style="width:2px; height:40px; background:#cbd5e1; margin:0 auto;"></div>
+      <div style="font-size:18px; color:#94a3b8;">▼</div>
+      <div style="font-size:9px; font-weight:700; color:#7c3aed; letter-spacing:1px; text-transform:uppercase; text-align:center; margin-top:4px;">Jan 26<br>2026</div>
+    </div>
+    <!-- New PayG -->
+    <div class="new-payg-box">
+      <div class="launch-badge">New PayG System</div>
+      <div style="font-size:14px; font-weight:700; margin-bottom:4px;">One 28D option. Short-term plans added.</div>
+      <div style="font-size:12px; color:#64748b; margin-bottom:12px;">The old ₹575 plan removed for 100mbps. The ₹500 plan still technically active for 50mbps.</div>
+      <div class="payg-plans">
+        <div class="payg-chip main">₹565 · 100mbps · 28D</div>
+        <div class="payg-chip short">1-Day plan</div>
+        <div class="payg-chip short">2-Day plan</div>
+        <div class="payg-chip short">7-Day plan</div>
+        <div class="payg-chip short">14-Day plan</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Price impact callouts -->
+  <div class="g2" style="margin-top:16px;">
+    <div class="callout teal">
+      <strong>100mbps customers:</strong> Their equivalent plan dropped ₹10 (₹575 → ₹565). If they choose the new 28D, they save money. Old plan removed — migration is effectively forced.
+    </div>
+    <div class="callout amber">
+      <strong>50mbps customers:</strong> No 50mbps option exists in the new system. The only 28D is ₹565 — <strong>₹65 more</strong> than what they were paying. The old ₹500 plan still works, so there's no forcing mechanism.
+    </div>
+  </div>
+</div>
+
+
+<!-- Segment glossary -->
+<div class="card" style="margin-top:16px;">
+  <div class="card-label">How we classify customers at each renewal</div>
+  <div class="card-title">Four outcomes — every customer hits one of these at R15</div>
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:16px;">
+    <div style="border-radius:8px; padding:14px 16px; background:#f8fafc; border-top:3px solid #64748b;">
+      <div style="font-size:20px; font-weight:900; color:#64748b; margin-bottom:4px;">A</div>
+      <div style="font-size:13px; font-weight:700; margin-bottom:4px;">Renewed old plan</div>
+      <div style="font-size:12px; color:#64748b; line-height:1.5;">Customer hit renewal and recharged the same old plan they were on (₹575 or ₹500). Still in the old system.</div>
+    </div>
+    <div style="border-radius:8px; padding:14px 16px; background:#f0fdfa; border-top:3px solid #0e7490;">
+      <div style="font-size:20px; font-weight:900; color:#0e7490; margin-bottom:4px;">E</div>
+      <div style="font-size:13px; font-weight:700; margin-bottom:4px;">Migrated to new 28D</div>
+      <div style="font-size:12px; color:#64748b; line-height:1.5;">Customer switched to the new PayG 28-day plan at ₹565. Permanent move — they can never return to the old plan.</div>
+    </div>
+    <div style="border-radius:8px; padding:14px 16px; background:#fffbeb; border-top:3px solid #b45309;">
+      <div style="font-size:20px; font-weight:900; color:#b45309; margin-bottom:4px;">C</div>
+      <div style="font-size:13px; font-weight:700; margin-bottom:4px;">Moved to short-term</div>
+      <div style="font-size:12px; color:#64748b; line-height:1.5;">Customer chose a 1D, 2D, 7D, or 14D plan instead. Also a one-way door — they cannot go back to the old plan from here.</div>
+    </div>
+    <div style="border-radius:8px; padding:14px 16px; background:#fef2f2; border-top:3px solid #dc2626;">
+      <div style="font-size:20px; font-weight:900; color:#dc2626; margin-bottom:4px;">✕</div>
+      <div style="font-size:13px; font-weight:700; margin-bottom:4px;">Churned</div>
+      <div style="font-size:12px; color:#64748b; line-height:1.5;">Customer did not recharge within the grace period. Connection lapsed.</div>
+    </div>
+  </div>
+  <div style="margin-top:12px; font-size:12px; color:#94a3b8; line-height:1.5;">B and D (new installs who never had an old plan) are tracked separately and do not appear in this analysis.</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 2 — WHAT'S HAPPENING EACH WEEK
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">02 — What Happens at Renewal</div>
+  <div class="sec-title">100mbps is migrating fast. 50mbps is barely moving.</div>
+  <div class="sec-sub">Every week, old customers hit their R15 window and choose what to do next. The bars below show <strong>actual customer counts</strong> — so as people migrate permanently to the new 28D, the gray (old plan) bar physically shrinks and the teal (new 28D) bar grows. Once someone migrates to E, they exit this chart entirely and renew as an E customer going forward. <strong>Note: these charts only track customers on old plans (pre-Jan 26). Customers already on new 28D, short-term, or new installs hit their own R15s separately and are not included here.</strong></div>
+</div>
+
+<div class="g2">
+  <!-- 100mbps chart -->
+  <div class="card">
+    <div class="card-label">100mbps — actual customers per week</div>
+    <div class="card-title">Old plan (gray) shrinking. New 28D (teal) replacing it.</div>
+    <div class="card-sub">Each bar = real customer count. Gray shrinks as people permanently migrate to E. Total stays ~11–13K because A customers cycle back every 28 days until they eventually migrate.</div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#0e7490;"></div>E · Moved to new 28D (₹565)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#b45309;"></div>C · Moved to short-term</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#dc2626;"></div>Churned</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#64748b;"></div>A · Renewed old ₹575 plan</div>
+    </div>
+    <div class="ch" style="height:280px;"><canvas id="c-100-migration"></canvas></div>
+  </div>
+  <!-- 50mbps chart -->
+  <div class="card">
+    <div class="card-label">50mbps — actual customers per week</div>
+    <div class="card-title">Old plan (gray) barely moving — 14K+ customers stuck every week</div>
+    <div class="card-sub">Compare the gray bar here vs 100mbps. For 50mbps it barely shrinks — customers keep renewing ₹500 each cycle. Teal (E) is almost invisible.</div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:#0e7490;"></div>E · Moved to new 28D (₹565)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#b45309;"></div>C · Moved to short-term</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#dc2626;"></div>Churned</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#64748b;"></div>A · Renewed old ₹500 plan</div>
+    </div>
+    <div class="ch" style="height:280px;"><canvas id="c-50-migration"></canvas></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 3 — WHAT HAPPENS AFTER MIGRATION
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">03 — After Migration: Staying or Leaving?</div>
+  <div class="sec-title">E customers stick. C customers are the leaky bucket.</div>
+  <div class="sec-sub">Once a customer migrates, their next renewal behaviour depends heavily on what they chose. E (new 28D) customers behave exactly like the old base. C (short-term) customers show meaningful differences between 100mbps and 50mbps.</div>
+</div>
+
+<!-- E outcomes -->
+<div class="card">
+  <div class="card-label">Group E — Migrated to New 28D (₹565)</div>
+  <div class="card-title">At their next R15 — E customers renew at the same rate as the old base</div>
+  <div class="card-sub">Migration to 28D is a clean handoff. These customers behave as if nothing changed.</div>
+
+  <div class="outcome-grid" style="margin-top:4px;">
+    <div class="outcome-card">
+      <div class="oc-header">
+        <div class="oc-badge e100">100mbps · n=842</div>
+        <div class="oc-title">At next renewal</div>
+      </div>
+      <div class="oc-bar">
+        <div class="ocb renew-e" style="width:85%;">Renew E · 85%</div>
+        <div class="ocb" style="width:6%; background:#b45309;">C · 6%</div>
+        <div class="ocb churn" style="width:9%;">9%</div>
+      </div>
+      <div class="oc-rows">
+        <div class="oc-row"><span>Renew new 28D again</span><span class="oc-val" style="color:#0e7490;">85%</span></div>
+        <div class="oc-row"><span>Drop to short-term</span><span class="oc-val" style="color:#b45309;">6%</span></div>
+        <div class="oc-row"><span>Churn</span><span class="oc-val" style="color:#dc2626;">9%</span></div>
+      </div>
+    </div>
+    <div class="outcome-card">
+      <div class="oc-header">
+        <div class="oc-badge e50">50mbps · n=30 ⚠</div>
+        <div class="oc-title">At next renewal</div>
+      </div>
+      <div class="oc-bar">
+        <div class="ocb renew-e" style="width:77%;">Renew E · 77%</div>
+        <div class="ocb" style="width:6%; background:#b45309;">C · 7%</div>
+        <div class="ocb churn" style="width:17%;">17%</div>
+      </div>
+      <div class="oc-rows">
+        <div class="oc-row"><span>Renew new 28D again</span><span class="oc-val" style="color:#0e7490;">77%</span></div>
+        <div class="oc-row"><span>Drop to short-term</span><span class="oc-val" style="color:#b45309;">7%</span></div>
+        <div class="oc-row"><span>Churn</span><span class="oc-val" style="color:#dc2626;">17%</span></div>
+      </div>
+      <div class="oc-note">Small sample — only 30 customers with closed grace period. April cohort data available in 2-3 weeks.</div>
+    </div>
+  </div>
+
+  <div class="callout green" style="margin-top:16px;">
+    100mbps E customers renew at 85% — indistinguishable from pre-PayG Segment A. The ₹10 saving likely helps. 50mbps E customers show higher churn (17% vs 9%) — consistent with paying ₹65 more — but sample is too small to be conclusive yet.
+  </div>
+</div>
+
+<!-- C outcomes -->
+<div class="card" style="margin-top:16px;">
+  <div class="card-label">Group C — Migrated to Short-term Plans</div>
+  <div class="card-title">Short-term is a one-way door — and it's harder for 50mbps customers to walk back through</div>
+  <div class="card-sub">Once a customer moves to short-term, they cannot return to their old plan. Their only path back to 28D is the new ₹565 plan. For 100mbps that's ₹10 cheaper than before — easy. For 50mbps it's ₹65 more expensive — a real barrier. Numbers below show what happens at the <strong>first short-term cycle</strong> (the renewal immediately after leaving old 28D). 100mbps n=2,775 · 50mbps n=2,230.</div>
+
+  <div class="outcome-grid" style="margin-top:4px;">
+    <div class="outcome-card">
+      <div class="oc-header">
+        <div class="oc-badge c100">100mbps · n=2,775</div>
+        <div class="oc-title">At first short-term renewal</div>
+      </div>
+      <div class="oc-bar">
+        <div class="ocb stay-c" style="width:60%;">Stay C · 60%</div>
+        <div class="ocb up-e" style="width:23%;">→ E · 23%</div>
+        <div class="ocb churn" style="width:17%;">17%</div>
+      </div>
+      <div class="oc-rows">
+        <div class="oc-row"><span>Stay on short-term</span><span class="oc-val" style="color:#b45309;">60%</span></div>
+        <div class="oc-row"><span>Upgrade to new 28D (E)</span><span class="oc-val" style="color:#0e7490;">23%</span></div>
+        <div class="oc-row"><span>Churn</span><span class="oc-val" style="color:#dc2626;">17%</span></div>
+      </div>
+    </div>
+    <div class="outcome-card">
+      <div class="oc-header">
+        <div class="oc-badge c50">50mbps · n=2,230</div>
+        <div class="oc-title">At first short-term renewal</div>
+      </div>
+      <div class="oc-bar">
+        <div class="ocb stay-c" style="width:58%;">Stay C · 58%</div>
+        <div class="ocb up-e" style="width:19%;">→ E · 19%</div>
+        <div class="ocb churn" style="width:23%;">23%</div>
+      </div>
+      <div class="oc-rows">
+        <div class="oc-row"><span>Stay on short-term</span><span class="oc-val" style="color:#b45309;">58%</span></div>
+        <div class="oc-row"><span>Upgrade to new 28D (E)</span><span class="oc-val" style="color:#0e7490;">19%</span></div>
+        <div class="oc-row"><span>Churn</span><span class="oc-val" style="color:#dc2626;">23%</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout amber" style="margin-top:16px;">
+    <strong>50mbps customers churn 6pp more than 100mbps</strong> at their first short-term renewal (23% vs 17%) and are less likely to upgrade to 28D (19% vs 23%). The ₹65 price gap is the reason — there is no affordable path back to monthly for them.<br><br>
+    <strong>Why the overall Segment C renewal looks higher (84–85%):</strong> Customers who survive the first cycle settle into short-term and churn at only ~12% in subsequent cycles. The 23% first-cycle shock gets averaged away once the pool stabilises. The first cycle is the dangerous one.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     CALLING DATA CARD
+══════════════════════════════════════════════ -->
+<div class="card" style="margin-top:16px;">
+  <div class="card-label">Calling Research — Churned Customers Who Migrated to Short-Term</div>
+  <div class="card-title">Why did they actually leave? 34 connected calls, split by origin speed</div>
+  <div class="card-sub">We called customers who migrated from old plans to short-term and then churned. 34 connected conversations — all 12m+ tenure customers. Origin speed confirmed via TRUM for each number.</div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:20px;">
+
+    <!-- 50mbps column -->
+    <div style="background:#fffbeb; border-radius:10px; padding:20px; border:1px solid #fde68a;">
+      <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; color:#b45309; text-transform:uppercase; margin-bottom:4px;">50 Mbps Origin — 18 Customers</div>
+      <div style="font-size:12px; color:#78350f; margin-bottom:16px;">What they said when they left</div>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#92400e;">Affordability / Price increase</div>
+            <div style="font-size:11px; color:#78350f; margin-top:2px; font-style:italic;">"recharge mehnga ho gaya" · "charges 450 → 500 → 600" · "rate badh gaye"</div>
+          </div>
+          <div style="font-size:22px; font-weight:900; color:#b45309; margin-left:16px;">6</div>
+        </div>
+        <div style="height:1px; background:#fde68a;"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#374151;">Service Experience</div>
+            <div style="font-size:11px; color:#64748b; margin-top:2px; font-style:italic;">Speed issues, net not starting after recharge, local CSP unresponsive</div>
+          </div>
+          <div style="font-size:22px; font-weight:900; color:#64748b; margin-left:16px;">5</div>
+        </div>
+        <div style="height:1px; background:#fde68a;"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#374151;">CSP Fraud</div>
+            <div style="font-size:11px; color:#64748b; margin-top:2px; font-style:italic;">Partner swapped router without customer knowledge</div>
+          </div>
+          <div style="font-size:22px; font-weight:900; color:#64748b; margin-left:16px;">3</div>
+        </div>
+        <div style="height:1px; background:#fde68a;"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#374151;">Out of Town / Shifting</div>
+            <div style="font-size:11px; color:#64748b; margin-top:2px; font-style:italic;">Temporarily away or relocated</div>
+          </div>
+          <div style="font-size:22px; font-weight:900; color:#64748b; margin-left:16px;">4</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px; padding:10px 12px; background:#fef3c7; border-radius:6px; font-size:12px; color:#92400e; line-height:1.6;">
+        <strong>33% of 50mbps churners cited price.</strong> These customers experienced a real price increase when they moved off the ₹500 plan — and said so explicitly.
+      </div>
+    </div>
+
+    <!-- 100mbps column -->
+    <div style="background:#f0fdfa; border-radius:10px; padding:20px; border:1px solid #99f6e4;">
+      <div style="font-size:11px; font-weight:700; letter-spacing:1.5px; color:#0e7490; text-transform:uppercase; margin-bottom:4px;">100 Mbps Origin — 16 Customers</div>
+      <div style="font-size:12px; color:#164e63; margin-bottom:16px;">What they said when they left</div>
+
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#0e7490;">Service Experience</div>
+            <div style="font-size:11px; color:#164e63; margin-top:2px; font-style:italic;">"speed issues", "net nahi chala after recharge", local CSP kept giving temporary fixes</div>
+          </div>
+          <div style="font-size:22px; font-weight:900; color:#0e7490; margin-left:16px;">8</div>
+        </div>
+        <div style="height:1px; background:#99f6e4;"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#374151;">Shifting / Relocation</div>
+            <div style="font-size:11px; color:#64748b; margin-top:2px; font-style:italic;">Moved address — one rebound (got new Wiom at new address)</div>
+          </div>
+          <div style="font-size:22px; font-weight:900; color:#64748b; margin-left:16px;">3</div>
+        </div>
+        <div style="height:1px; background:#99f6e4;"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#374151;">Out of Town</div>
+            <div style="font-size:11px; color:#64748b; margin-top:2px; font-style:italic;">Temporarily absent — some indicated intent to rechargeupon return</div>
+          </div>
+          <div style="font-size:22px; font-weight:900; color:#64748b; margin-left:16px;">2</div>
+        </div>
+        <div style="height:1px; background:#99f6e4;"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div style="font-size:13px; font-weight:700; color:#374151;">Affordability / CSP Fraud</div>
+            <div style="font-size:11px; color:#64748b; margin-top:2px; font-style:italic;">2 price-sensitive, 1 router swapped by partner</div>
+          </div>
+          <div style="font-size:22px; font-weight:900; color:#64748b; margin-left:16px;">3</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px; padding:10px 12px; background:#ccfbf1; border-radius:6px; font-size:12px; color:#0f766e; line-height:1.6;">
+        <strong>50% of 100mbps churners cited service quality.</strong> Their new plan was cheaper than before — price was not the trigger. These are fixable losses: resolve local CSP issues and many would return.
+      </div>
+    </div>
+
+  </div>
+
+  <div class="callout purple" style="margin-top:16px;">
+    <strong>Two very different churn problems:</strong> 50mbps customers are leaving because of <em>price</em> — the PayG transition made their monthly cost higher and they can't absorb it. 100mbps customers are leaving because of <em>service</em> — their plan actually got cheaper, but repeated connectivity failures drove them to Jio/Airtel. These need different interventions: a ₹500-tier 28D plan for 50mbps, and stronger field ops accountability for 100mbps. Treating both as one "migration churn" problem will miss both.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SECTION 5 — THE RISK AHEAD
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">04 — The Risk That Hasn't Hit Yet</div>
+  <div class="sec-title">~14,500 50mbps customers per week are parked on the old plan — and will be forced to migrate eventually</div>
+  <div class="sec-sub">The 50mbps base is stable today only because the ₹500 plan still works. The moment it is switched off, these customers face the new PayG menu for the first time — with no affordable 28D option.</div>
+</div>
+
+<div class="risk-header">
+  <div class="risk-title">The Latent Risk: Forced 50mbps Migration</div>
+  <div class="risk-sub">Every week, ~14,500 50mbps customers renew the old ₹500 plan without any friction. They are invisible to the migration story right now. When the ₹500 plan is removed, all of them will face the choice that only 2–3% are making voluntarily today.</div>
+  <div class="risk-stats">
+    <div class="risk-stat">
+      <div class="risk-num">~14,500</div>
+      <div class="risk-lbl">50mbps customers renewing old plan per week</div>
+    </div>
+    <div class="risk-stat">
+      <div class="risk-num">₹65</div>
+      <div class="risk-lbl">Price increase they'd face for a 28D plan in the new system</div>
+    </div>
+    <div class="risk-stat">
+      <div class="risk-num">72%</div>
+      <div class="risk-lbl">Of 50mbps first-time migrants chose short-term over new 28D</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-label">What Forced Migration Would Look Like — Based on Observed First-Migration Data</div>
+  <div class="card-title">Scenario: ₹500 plan is turned off. 14,500 customers per week are forced to choose.</div>
+
+  <!-- Step 1: the split -->
+  <div style="margin-top:20px;">
+    <div style="font-size:11px; font-weight:700; letter-spacing:1px; color:#94a3b8; text-transform:uppercase; margin-bottom:10px;">Week 1 — How they split</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+
+      <div style="display:flex; align-items:center; gap:12px; padding:14px 16px; background:#fef2f2; border-radius:8px; border-left:3px solid #dc2626;">
+        <div style="font-size:22px; font-weight:900; color:#dc2626; min-width:80px;">~2,000</div>
+        <div>
+          <div style="font-size:13px; font-weight:700;">Do not recharge at all → churn</div>
+          <div style="font-size:12px; color:#64748b; margin-top:2px;">14% baseline churn × 14,500 = ~2,000. Solid observed rate — same regardless of forced migration.</div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px; padding:14px 16px; background:#f8fafc; border-radius:8px; border-left:3px solid #94a3b8;">
+        <div style="font-size:22px; font-weight:900; color:#475569; min-width:80px;">~12,500</div>
+        <div>
+          <div style="font-size:13px; font-weight:700;">Remaining customers — must pick a plan</div>
+          <div style="font-size:12px; color:#64748b; margin-top:2px;">These 12,500 face the new PayG menu for the first time. How they split between E and C is uncertain — the range below is an estimate based on the small number of early 50mbps voluntary migrants.</div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px; padding:14px 16px; background:#f0fdfa; border-radius:8px; border-left:3px solid #0e7490; margin-left:32px;">
+        <div style="font-size:22px; font-weight:900; color:#0e7490; min-width:80px;">2,500–3,800</div>
+        <div>
+          <div style="font-size:13px; font-weight:700;">Accept ₹565 28D → join Group E</div>
+          <div style="font-size:12px; color:#64748b; margin-top:2px;">Estimated 20–30% of the 12,500. Accept the price increase and move cleanly to the new plan. Stable renewers going forward.</div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:12px; padding:14px 16px; background:#fffbeb; border-radius:8px; border-left:3px solid #b45309; margin-left:32px;">
+        <div style="font-size:22px; font-weight:900; color:#b45309; min-width:80px;">8,700–10,000</div>
+        <div>
+          <div style="font-size:13px; font-weight:700;">Choose short-term → join Group C</div>
+          <div style="font-size:12px; color:#64748b; margin-top:2px;">Estimated 70–80% of the 12,500. Not willing to pay ₹65 more, they park on 1D/2D/7D plans. This is the at-risk pool.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Step 2: what happens next to the C pool -->
+  <div style="margin-top:20px;">
+    <div style="font-size:11px; font-weight:700; letter-spacing:1px; color:#94a3b8; text-transform:uppercase; margin-bottom:10px;">What happens to the 8,700–10,000 in short-term — two phases</div>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div style="padding:16px; background:#fef2f2; border-radius:8px; border:1px solid #fecaca;">
+        <div style="font-size:12px; font-weight:700; color:#dc2626; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Phase 1 — First short-term cycle (highest risk)</div>
+        <div style="font-size:13px; color:#374151; line-height:1.7;">
+          Based on observed 50mbps first-cycle data (n=2,230):<br>
+          <strong style="color:#dc2626;">23% churn</strong> — ~2,000–2,300 customers lost immediately at first short-term expiry.<br>
+          <strong style="color:#0e7490;">19% upgrade to E</strong> — accept ₹565 and move to stable ground.<br>
+          <strong style="color:#b45309;">58% stay in short-term</strong> — enter the settled pool below.
+        </div>
+      </div>
+      <div style="padding:16px; background:#fffbeb; border-radius:8px; border:1px solid #fde68a;">
+        <div style="font-size:12px; font-weight:700; color:#b45309; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Phase 2 — Settled short-term users (cycles 2+)</div>
+        <div style="font-size:13px; color:#374151; line-height:1.7;">
+          Customers who stayed in short-term churn at a lower ~12% per cycle — they have adapted to the pattern. This is why the overall Segment C renewal rate looks like 84–85% in aggregate. But the pool still bleeds ~12% every cycle until it empties.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout red" style="margin-top:16px;">
+    <strong>The fix is simple but needs to happen before forced migration:</strong> A ₹500–₹510 tier for 28D in the new PayG system would likely pull the majority of 50mbps customers directly into Group E, eliminating the short-term detour and the associated churn entirely. Without it, a mass migration event becomes a mass churn event.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════
+     SUMMARY
+══════════════════════════════════════════════ -->
+<div class="sec-head">
+  <div class="sec-num">Summary</div>
+  <div class="sec-title">The complete picture in four lines</div>
+</div>
+
+<div class="card">
+  <div style="display:flex; flex-direction:column; gap:0;">
+    <div style="display:flex; gap:16px; padding:18px 0; border-bottom:1px solid #f1f5f9; align-items:flex-start;">
+      <div style="width:32px; height:32px; background:#0e7490; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px; flex-shrink:0;">1</div>
+      <div><div style="font-weight:700; font-size:14px; margin-bottom:3px;">100mbps migration is happening cleanly and is nearly done.</div><div style="font-size:13px; color:#64748b; line-height:1.6;">Since March, 55% of 100mbps customers are migrating to the new 28D (₹565) at each renewal. Their renewal rate post-migration is 85% — identical to before. Churn unchanged. No action needed.</div></div>
+    </div>
+    <div style="display:flex; gap:16px; padding:18px 0; border-bottom:1px solid #f1f5f9; align-items:flex-start;">
+      <div style="width:32px; height:32px; background:#b45309; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px; flex-shrink:0;">2</div>
+      <div><div style="font-weight:700; font-size:14px; margin-bottom:3px;">50mbps migration has not happened. They are parked on the old ₹500 plan.</div><div style="font-size:13px; color:#64748b; line-height:1.6;">~18K 50mbps customers hit R15 each week. 81% renew the old ₹500 plan. Only 1-2% voluntarily migrate to E. Churn is stable at 14%. These customers are fine today — but sitting on borrowed time.</div></div>
+    </div>
+    <div style="display:flex; gap:16px; padding:18px 0; border-bottom:1px solid #f1f5f9; align-items:flex-start;">
+      <div style="width:32px; height:32px; background:#7c3aed; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px; flex-shrink:0;">3</div>
+      <div><div style="font-weight:700; font-size:14px; margin-bottom:3px;">Customers who migrate to short-term (C) are the riskiest group — especially 50mbps.</div><div style="font-size:13px; color:#64748b; line-height:1.6;">At the first short-term cycle: 100mbps churn 17%, 50mbps churn 23%. Only 19% of 50mbps C customers upgrade to new 28D (vs 23% for 100mbps) — the ₹65 price gap makes it harder for them to move to stable ground. Those who survive cycle 1 settle at ~12% churn in subsequent cycles.</div></div>
+    </div>
+    <div style="display:flex; gap:16px; padding:18px 0; align-items:flex-start;">
+      <div style="width:32px; height:32px; background:#dc2626; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px; flex-shrink:0;">4</div>
+      <div><div style="font-weight:700; font-size:14px; margin-bottom:3px;">The real risk: ~14,500 50mbps customers per week face an unmanaged forced migration event.</div><div style="font-size:13px; color:#64748b; line-height:1.6;">When the ₹500 plan is switched off, based on first-migration data, ~70% will choose short-term rather than pay ₹65 more. That puts ~10,000 customers/week into Group C at one go, generating ~1,500/week in ongoing churn. A ₹500-tier 28D in the new system would prevent this entirely.</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<div class="footer">Wiom Migration Analysis &nbsp;·&nbsp; April 30, 2026 &nbsp;·&nbsp; Source: T_ROUTER_USER_MAPPING (TRUM) + T_PLAN_CONFIGURATION</div>
+
+<script>
+// ── Shared config ──
+const weeks = ['Mar 2','Mar 9','Mar 16','Mar 23','Mar 30','Apr 6','Apr 13','Apr 20'];
+
+const absOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      callbacks: {
+        label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`
+      }
+    }
+  },
+  scales: {
+    x: { stacked: true, grid: { display: false } },
+    y: {
+      stacked: true,
+      ticks: { callback: v => (v/1000).toFixed(0) + 'K' },
+      grid: { color: 'rgba(0,0,0,0.04)' }
+    }
+  }
+};
+
+// ── 100mbps migration chart (absolute counts) ──
+const d100 = {
+  A:     [10646, 11301, 11547, 10002, 5717, 3537, 3255, 2983],
+  E:     [0,     0,     59,    517,   3644, 5777, 6498, 6195],
+  C:     [0,     0,     10,    79,    413,  655,  726,  626],
+  Churn: [1854,  1828,  1850,  1788,  1547, 1452, 1700, 1543]
+};
+
+new Chart(document.getElementById('c-100-migration'), {
+  type: 'bar',
+  data: {
+    labels: weeks,
+    datasets: [
+      { label: 'E · New 28D',    data: d100.E,     backgroundColor: '#0e7490', stack: 's' },
+      { label: 'C · Short-term', data: d100.C,     backgroundColor: '#b45309', stack: 's' },
+      { label: 'Churned',        data: d100.Churn, backgroundColor: '#dc2626', stack: 's' },
+      { label: 'A · Old plan',   data: d100.A,     backgroundColor: '#64748b', stack: 's' }
+    ]
+  },
+  options: absOpts
+});
+
+// ── 50mbps migration chart (absolute counts) ──
+const d50 = {
+  A:     [16563, 16992, 17755, 16618, 14557, 14061, 14634, 14698],
+  E:     [0,     0,     1,     19,    152,   377,   508,   281],
+  C:     [0,     0,     8,     64,    368,   611,   698,   332],
+  Churn: [3238,  3231,  2981,  2882,  2380,  2487,  2841,  2593]
+};
+
+new Chart(document.getElementById('c-50-migration'), {
+  type: 'bar',
+  data: {
+    labels: weeks,
+    datasets: [
+      { label: 'E · New 28D',    data: d50.E,     backgroundColor: '#0e7490', stack: 's' },
+      { label: 'C · Short-term', data: d50.C,     backgroundColor: '#b45309', stack: 's' },
+      { label: 'Churned',        data: d50.Churn, backgroundColor: '#dc2626', stack: 's' },
+      { label: 'A · Old plan',   data: d50.A,     backgroundColor: '#64748b', stack: 's' }
+    ]
+  },
+  options: absOpts
+});
+</script>
+</body>
+</html>
